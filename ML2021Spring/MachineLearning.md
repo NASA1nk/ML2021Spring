@@ -1,4 +1,4 @@
-[李宏毅2021春机器学习课程](https://www.bilibili.com/video/BV1Wv411h7kN?p=1)
+N李宏毅2021春机器学习课程](https://www.bilibili.com/video/BV1Wv411h7kN?p=1)
 
 # 机器学习
 
@@ -44,11 +44,7 @@ Loss is a function of  parameters
 
 ### 最优化Optimization
 
-$$
-w^*,b^* = arg\underset{w,b}{min} L
-$$
-
- 
+$w^*,b^* = arg\underset{w,b}{min} L$
 
 > arg min 使L最小的参数w和b
 
@@ -87,6 +83,11 @@ Linear models have severe limitation（表达能力弱）
 ### Activation Function
 
 #### Sigmoid Function
+
+- sigmoid function是一个在生物学中常见的S型的函数，也称为S型生长曲线
+- 在信息科学中，由于其单增以及反函数单增等性质，Sigmoid函数常被用作**神经网络的阈值函数，将变量映射到[0,1]之间**
+
+
 
 Piecewise Linear Curves = **constant + sum of a set of piecewise function**
 
@@ -277,7 +278,7 @@ $$
 
 Deep =  Many hidder layers
 
-1. 上述的Model被叫做Neuron，多层Neuron被叫做Neuron Network
+1. 上述的Model被叫做Neuron，多层Neuron连接起来就是Neural Network
 2. 将每一排的Neuron叫做Hidden Layer，很多Layer就被称作Deep，整个模型就叫Deep Learning
 
 ![多个Neuron](MachineLearning.assets/多个Neuron.png)
@@ -665,10 +666,30 @@ for x in tt_set:
 
 ## 神经网络
 
+ANN：Aritificial Neural Networks
+
+> 简称为神经网络NN：Neural Networks,
+
 [神经元](# 神经元Neuron)
 
-- 把一个Logistic Regression称之为一个Neuron，多个Neuron连接就成为一个Neuron Network
+- 把一个Logistic Regression称之为一个Neuron，多个Neuron连接就成为一个Neural Network
 - 每个LR都有自己的wight和bias，所有的LR的weight和bias集合起来就是这个NN的parameter（θ）
+
+### 基本思想
+
+通过大量**简单的神经元**之间的相互连接来**构造复杂的网络结构**，信号（数据）可以在这些神经元之间传递，通过激活不同的神经元和对传递的信号进行**加权**来使得信号被放大或衰减，经过多次的传递来改变信号的强度和表现形式
+
+> 不同的激活函数，不同的结果
+
+### MCP模型
+
+模拟大脑，MCP模型将神经元简化为了三个过程：
+
+- 输入信号**线性加权**
+- 求和
+- **非线性激活**（阈值法）
+
+
 
 ### Structure
 
@@ -676,9 +697,12 @@ for x in tt_set:
 
 我们定义了NN的structure，就相当于define了一个function set（可以给NN设定不同的参数，它就变成了不同的function）
 
+- 决定有多少个hidden layer
+- 决定每个hidder layer 有多少个Neuron
+
 > Fully Connect Feedforward NetWork：全连接前向传播神经网络
 >
-> input得到不同的output vector
+> input vector/output vector
 
 ![FCFFN](MachineLearning.assets/FCFFN.png)
 
@@ -708,31 +732,15 @@ output layer的feature不是直接从输入X抽取出来的，而是通过多个
 
 
 
-# 神经网络
-
-## 人工神经网络 
-
-ANN：Aritificial Neural Networks
-
-> 简称为神经网络NN：Neural Networks,
-
-**基本思想**
-
-通过大量**简单的神经元**之间的相互连接来**构造复杂的网络结构**，信号（数据）可以在这些神经元之间传递，通过激活不同的神经元和对传递的信号进行**加权**来使得信号被放大或衰减，经过多次的传递来改变信号的强度和表现形式
-
-**MCP模型**
-
-模拟大脑，MCP模型将神经元简化为了三个过程：
-
-- 输入信号**线性加权**
-- 求和
-- **非线性激活**（阈值法）
 
 
 
-## 感知机
+
+# 感知机
 
 Perceptrons
+
+感知机本质上是一种**线性模型**（linear model），**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
 
 - 输入层（特征向量）
 - 隐含层
@@ -740,17 +748,17 @@ Perceptrons
 
 > 其实就是**两层神经元组成的神经网络**，使用MCP模型对输入的多维数据进行二分类classification
 
-感知机本质上是一种**线性模型**（linear model），**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
 
-## 多层感知机
+
+# 多层感知机
 
 MLP：Multilayer Perceptrons
 
-有多个隐含层的感知机
+有多个隐含层的Perceptrons
 
-可以使用反向传播BP算法，然后使用Sigmoid进行非线性映射，解决非线性分类和学习的问题
+可以使用反向传播BP算法，然后使用Sigmoid激活函数进行非线性映射，解决非线性分类和学习的问题
 
-### 反向传播BP算法
+# 反向传播BP算法
 
 BP：Backpropagation
 
@@ -764,8 +772,3 @@ BP：Backpropagation
 
 - ReLU激活函数能够有效的抑制梯度消失问题（不再需要预训练和微调）
 
-### Sigmoid函数
-
-是一个在生物学中常见的S型的函数，也称为S型生长曲线
-
-在信息科学中，由于其单增以及反函数单增等性质，Sigmoid函数常被用作**神经网络的阈值函数，将变量映射到[0,1]之间**
