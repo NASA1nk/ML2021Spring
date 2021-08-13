@@ -1,4 +1,6 @@
-N李宏毅2021春机器学习课程](https://www.bilibili.com/video/BV1Wv411h7kN?p=1)
+[李宏毅2021春机器学习课程视频](https://www.bilibili.com/video/BV1Wv411h7kN?p=1)
+
+[李宏毅2021春机器学习课程主页](https://speech.ee.ntu.edu.tw/~hylee/ml/2021-spring.html)
 
 # 机器学习
 
@@ -15,18 +17,18 @@ Machine Learning ≈ Looking For Function
 >
 > 分类：离散
 
-## 监督学习
+## 监督学习supervised learning
 
 ### 模型model
 
 带有未知的parameter的function
 
-**Linear models**：
-$$
-y = b + wx
-$$
+**线性模型Linear models**：
+
+$y = b + wx$
 
 - x：feature
+
 - w：weight 
 - b：bias
 
@@ -36,25 +38,27 @@ $$
 
 Loss is a function of  parameters
 
-> Define Loss  from Training Data
-
 - MAE（mean absolute error）：平均绝对误差 |$y-\bar{y}$|
 - MSE（mean square error）：均方误差 $(y-\bar{y})^2$
 - RMSE（Root Mean Squard Error）：均方根误差 $\sqrt{\frac{1}{N}\sum_{n=1}^{N}(f(x^n)-\bar y^n)^2}$
+
+> Define Loss  from Training Data
 
 ### 最优化Optimization
 
 $w^*,b^* = arg\underset{w,b}{min} L$
 
-> arg min 使L最小的参数w和b
+> arg min：求得使L最小的参数w和b
 
 #### 梯度下降Gradient Descent
 
-存在问题：容易陷入局部最优解（local minima）而得不到全局最优解（global minima）
+**存在问题**
+
+容易陷入局部最优解（local minima）而得不到全局最优解（global minima）
 
 > 负梯度方向，LOSS下降最快
 
-1. (Randomly) Pick an initial value $w^0$
+1. (Randomly) Pick an initial value $(w^0，b^0)$
 
 2. computer 
    $$
@@ -67,8 +71,6 @@ $w^*,b^* = arg\underset{w,b}{min} L$
    b^1 = b^0 - η\ \frac{\partial L}{\partial b}|_{w = w^0,b = b^0}
    $$
 
-
-
 > η：learning rate
 >
 > - negative：increase w,b
@@ -76,47 +78,70 @@ $w^*,b^* = arg\underset{w,b}{min} L$
 
 
 
-**Model Bias**
-
-Linear models have severe limitation（表达能力弱）
-
 ### Activation Function
+
+#### 超参数HyperParameter
+
+机器学习模型中一般有两类参数
+
+- 一类需要从数据中学习和估计得到，称为模型参数（Parameter），即模型本身的参数，比如
+  - 线性回归直线的加权系数w（斜率）
+  - 线性回归直线的偏差项b（截距）
+- 一类则是机器学习算法中的调优参数（Tuning Parameters），需要**人为设定**，称为超参数（Hyper Parameter），比如
+  - 正则化系数λ
+  - 决策树模型中树的深度
+  - 梯度下降法中的学习率η
+  - 迭代次数epoch
+  - 批量大小batch-size
+  - k近邻法中的k（最相近的点的个数）
+
+> 机器学习中的调参，实际上是调超参数
+
+#### 分段线性曲线Piecewise Linear Curves
+
+Piecewise Linear Curves = **Constant + sum of a set of Piecewise function**
+
+再用Piecewise Linear Curves去逼近出各种Continuous function
+
+> piecewise function其实就是Hard sigmoid function
+>
+> sigmoid function就是一个HyperParameter
 
 #### Sigmoid Function
 
 - sigmoid function是一个在生物学中常见的S型的函数，也称为S型生长曲线
-- 在信息科学中，由于其单增以及反函数单增等性质，Sigmoid函数常被用作**神经网络的阈值函数，将变量映射到[0,1]之间**
-
-
-
-Piecewise Linear Curves = **constant + sum of a set of piecewise function**
-
-再用Piecewise Linear Curves去逼近出各种continuous function
-
-> piecewise function其实就是Hard sigmoid function
->
-> sigmoid function就是一个hyperParameter
+- 在信息科学中由于其**单增以及反函数单增**等性质，sigmoid function常被用作**神经网络的阈值函数**（将变量映射到[0,1]之间）
 
 $$
-y = c \frac{1}{1+e^{-(b+wx1)}}
+y = c\ \frac{1}{1+e^{-(b+wx_1)}}
 $$
 
-简写为：
+简写为
 $$
 y = c\ sigmoid(b+wx_1)
 $$
-修改$c,b,w$来逼近各种各样的piecewise function，从而得到各种Piecewise Linear Curves
+修改c，b，w​来逼近各种各样的piecewise function，从而得到各种Piecewise Linear Curves
 
 ![sigmoidfunction](MachineLearning.assets/sigmoidfunction.png)
 
 
+
+简单的Linear Model
 $$
-y = b + wx\\
+y = b + wx
+$$
+就被通过sigmoid function的叠加形成的Piecewise Linear Curves替换
+
+$$
 y = b + \sum\limits_i\ c_i\ sigmoid(b_i+w_ix_1)
 $$
 
+即
 $$
-y = b + \sum\limits_jw_jx_j\\
+y = b + \sum\limits_jw_jx_j
+$$
+替换为
+$$
 y = b + \sum\limits_i c_i\ sigmoid(b_i+\sum\limits_j(w_{ij}x_j))
 $$
 
@@ -124,12 +149,14 @@ $$
 
 - i：sigmoid function 个数
 - j：feature个数
+- b：constant
+- bi：bias
 
+取i = j = 3，就有
 
-
-  取i = j = 3，就有
-
-> wij：weight for xj for i-th sigmoid
+> wij：weight for xj for i-th sigmoid 第i个激活函数的第j个特征的权重
+>
+> ri：第i个sigmoid的参数值
 
 $$
 r_1 = b_1 + w_{11}x_1 + w_{12}x_2 + w_{13}x_3\\
@@ -149,17 +176,33 @@ $$
 $$
 r = b + Wx​
 $$
-ri通过sigmoid函数得到ai
+ri通过sigmoid函数得到ai，即
+
+> a是ai组成的vector，r是ri组成的vector
+
+$$
+a = σ(r)
+$$
+
+
 
 ![sigmoid过程](MachineLearning.assets/sigmoid过程.png)
 
 所以传入ai后就有
 $$
-y = b + c^T a
+\begin{align*}\label{2}
+&y = b + c_1*a_1 + c_2*a_2 + c_3*a_3 \\
+&y = b+
+\left[\begin{matrix}c_1&c_2&c_3\end{matrix}\right]
+\left[\begin{matrix}a_1\\a_2\\a_3\end{matrix}\right]
+\\&y = b + c^T a
+\end{align*}
 $$
-带入ai就有
+
 
 ![sigmoid函数求y](MachineLearning.assets/sigmoid函数求y.png)
+
+带入a = σ(r)就有
 $$
 y=b+c^T\ σ(b+Wx)
 $$
@@ -179,7 +222,7 @@ $$
 $$
 
 
-> 将W矩阵划分成向量再一起拼接
+> 将W矩阵划分成向量再和cT、b、b一起拼接
 
 最优化求解
 $$
@@ -197,12 +240,15 @@ $$
    \end{matrix}\right]
    $$
 
-   即
+   即求g的全微分
    $$
    g=\nabla L(θ^0)
    $$
 
-3. $$
+3. 更新
+
+   
+   $$
    \left[\begin{matrix}
    θ_1^1\\θ_2^1\\θ_3^1\\\vdots
    \end{matrix}\right]
@@ -278,8 +324,9 @@ $$
 
 Deep =  Many hidder layers
 
-1. 上述的Model被叫做Neuron，多层Neuron连接起来就是Neural Network
-2. 将每一排的Neuron叫做Hidden Layer，很多Layer就被称作Deep，整个模型就叫Deep Learning
+1. 上述通过sigmoid function叠加出来的的Model就是**神经元模型**（Neuron）
+2. 多层Neuron连接起来就是神经网络（Neural Networks）
+3. 除开输入输出层layer，中间每一排的Neuron就叫做Hidden Layer，很多Layer就被称作Deep，整个模型就叫Deep Learning
 
 ![多个Neuron](MachineLearning.assets/多个Neuron.png)
 
@@ -668,9 +715,11 @@ for x in tt_set:
 
 ANN：Aritificial Neural Networks
 
-> 简称为神经网络NN：Neural Networks,
+> 简称为神经网络NN：Neural Networks
+>
+> 生物神经网络：神经元的电位超过一个阈值threshold，那么它就会被激活（兴奋），向其他神经元发送化学物质
 
-[神经元](# 神经元Neuron)
+[神经元模型](# 神经元Neuron)
 
 - 把一个Logistic Regression称之为一个Neuron，多个Neuron连接就成为一个Neural Network
 - 每个LR都有自己的wight和bias，所有的LR的weight和bias集合起来就是这个NN的parameter（θ）
@@ -740,13 +789,32 @@ output layer的feature不是直接从输入X抽取出来的，而是通过多个
 
 Perceptrons
 
-感知机本质上是一种**线性模型**（linear model），**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
+感知机本质上是一种**线性模型**（linear model），其实就是**两层神经元组成的神经网络**，使用MCP模型对输入的多维数据进行二分类**classification**
+
+它只有输出层神经元进行activation function处理，即只有一层功能神经元（function neuron），学习能力有限，**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
+$$
+f(x)=sign(w*x+b)
+$$
+
+$$
+sign(x)=
+\left\{
+\begin{aligned}
++1, \quad x\ge0\\
+-1, \quad x\lt0\\
+\end{aligned}
+\right.
+$$
+
+
+
+> 只有线性可分的时候perceptron才能达到收敛converge，异或问题是线性不可分的，需要使用多层Perceptron
+>
+> Model Bias：Linear models have severe limitation（表达能力弱）
 
 - 输入层（特征向量）
 - 隐含层
 - 输出层（分类结果）
-
-> 其实就是**两层神经元组成的神经网络**，使用MCP模型对输入的多维数据进行二分类classification
 
 
 
@@ -754,9 +822,13 @@ Perceptrons
 
 MLP：Multilayer Perceptrons
 
-有多个隐含层的Perceptrons
+有多个隐含层（hidden layer）的Perceptrons
+
+> hidden layer 和output layer都是function neuron
 
 可以使用反向传播BP算法，然后使用Sigmoid激活函数进行非线性映射，解决非线性分类和学习的问题
+
+
 
 # 反向传播BP算法
 
