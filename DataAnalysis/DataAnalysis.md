@@ -105,9 +105,9 @@ Jupyter Notebook是基于网页的用于交互计算的应用程序。被应用�
 
 
 
-# 安装
+## 安装
 
-## Anaconda安装
+### Anaconda安装
 
 Anaconda自动安装了Jupter Notebook及其他工具，还有python中超过180个科学包及其依赖项
 
@@ -117,7 +117,7 @@ Anaconda自动安装了Jupter Notebook及其他工具，还有python中超过180
 conda install jupyter notebook
 ```
 
-## pip安装
+### pip安装
 
 1. **把pip升级到最新版本**
 
@@ -149,7 +149,7 @@ conda install jupyter notebook
 
 
 
-# 运行
+## 运行
 
 在终端中输入`jupyter notebook`，默认启动端口：8888
 
@@ -174,7 +174,7 @@ jupyter notebook --no-browser
 
 
 
-# 修改配置文件
+## 修改配置文件
 
 **修改Jupyter Notebook的文件存放路径**
 
@@ -230,7 +230,7 @@ jupyter notebook --no-browser
 
 
 
-# 使用
+## 使用
 
 现有的文件可以通过勾选文件的方式，对选中文件进行复制、重命名、移动、下载、查看、编辑和删除
 
