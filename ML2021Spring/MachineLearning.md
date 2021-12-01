@@ -198,7 +198,6 @@ r_i = b_i+\sum\limits_j(w_{ij}x_j)\\
 ⬇\\
 a_i = sigmoid(r_i)\\
 ⬇\\
- 
 $$
 
 
@@ -943,14 +942,16 @@ MLP：Multilayer Perceptrons
 
 - 反向传播：Backward pass
 
-> cn(θ)对权重w求偏导可以拆分成
->
-> - Backward pass
->   - cn(θ)对z求偏导
-> - Forward pass 
->   - z对w求偏导
->
-> $z = b_i+\sum\limits_j(w_{ij}x_j)$ ：即z是激活函数的参数
+**过程**
+
+cn(θ)对权重w求偏导可以拆分成
+
+- Backward pass
+  - cn(θ)对z求偏导
+- Forward pass 
+  - z对w求偏导
+
+> $z = b+\sum\limits_i(w_ix_i)$ ：即z是激活函数的参数
 
 ![BP算法神经元分析](MachineLearning.assets/BP算法神经元分析.png)
 
@@ -972,3 +973,35 @@ z对w求偏微分的结果就是输入x的值
 
 ### 反向传播
 
+难点在于cn(θ)是最后一层，所以要经过中间的复杂变换
+
+- 激活函数使用Sigmod函数
+
+> $a = sigmoid(z)$ ：即参数z经过激活函数后变成a
+
+**过程**
+
+1. 先只考虑下一步，将cn(θ)继续拆分为对sigmoid函数求偏导
+2. 然后再将sigmoid函数对参数z求偏导
+   1. sigmoid函数偏导如下图
+   2. 偏导结果是一个常数，因为z在前向传播的时候就已经确定了
+
+
+
+![BP拆分求偏导](MachineLearning.assets/BP拆分求偏导.png)
+
+1. 而a会做为新的input，再参与下一组权重w的运算得到新的z'，即 $z' = b+\sum\limits_i(w_ia_i)$ 
+2. 而新得到的z'会再后面影响到cn(θ)
+3. 所以cn(θ)对a的偏导又可以拆分成
+   1. cn(θ)对z'求偏导
+   2. z'对a求偏导
+
+> z'对a求偏导就和z对x求偏导相似，就是权重值w'
+
+![bp拆分求偏导2](MachineLearning.assets/bp拆分求偏导2.png)
+
+但是因为后续还有复杂的计算，所以cn(θ)对z'求偏导仍然是无法直接得到答案的，如果假设cn(θ)对z'求偏导答案已知
+
+就有
+
+![bp偏导结果](MachineLearning.assets/bp偏导结果.png)
