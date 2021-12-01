@@ -4,7 +4,7 @@
 
 # 机器学习
 
-Machine Learning ≈ Looking For Function
+`Machine Learning` ≈ Looking For Function
 
 - **回归Regression**
   - The function outputs a scalar.
@@ -120,7 +120,7 @@ $w^*,b^* = arg\underset{w,b}{min} L$
 
 `Activation Function`
 
-#### Sigmoid Function
+#### Sigmoid
 
 - sigmoid function是一个在生物学中常见的**S型的函数**，也称为S型生长曲线
 - 在信息科学中由于其**单增以及反函数单增**等性质，sigmoid function常被用作**神经网络的阈值函数**（将变量映射到[0,1]之间）
@@ -198,7 +198,7 @@ r_i = b_i+\sum\limits_j(w_{ij}x_j)\\
 ⬇\\
 a_i = sigmoid(r_i)\\
 ⬇\\
-a = σ(r)
+ 
 $$
 
 
@@ -352,18 +352,14 @@ $$
 
 `Neuron`
 
-Deep =  Many Hidden Layers
-
 1. 上述通过sigmoid function叠加出来的的Model就是**神经元模型**（Neuron）
 2. 多层Neuron连接起来就是神经网络（Neural Networks）
-3. 除开输入输出层，中间的Neuron就叫做Hidden Layer，很多Layer就被称作Deep，整个模型就叫Deep Learning
+3. 除开输入输出层，中间的Neuron就叫做Hidden Layer，整个模型就叫Deep Learning
 
 > 计算出a后并不直接算出y，而是将a作为新的sigmoid函数的输入x继续拟合，向前传递
 > $$
 > a_i = sigmoid(b_i+\sum\limits_j(w_{ij}x_j))
 > $$
-
-
 
 ![多个Neuron](MachineLearning.assets/多个Neuron.png)
 
@@ -373,7 +369,7 @@ Deep =  Many Hidden Layers
 
 ## 过拟合
 
-`Overfittting`
+`Overfitting`
 
 
 
@@ -743,6 +739,14 @@ for x in tt_set:
 
 # 深度学习
 
+`Deep Learning`
+
+- Deep =  Many Hidden Layers
+
+> 为什么要用DL
+>
+> 
+
 ## 神经网络
 
 ANN：Aritificial Neural Networks
@@ -750,11 +754,6 @@ ANN：Aritificial Neural Networks
 - 简称为神经网络NN：Neural Networks
 
 > 生物神经网络：神经元的电位超过一个阈值threshold，那么它就会被激活（兴奋），向其他神经元发送化学物质
-
-[神经元模型](# 神经元Neuron)
-
-- 把一个Logistic Regression称之为一个Neuron，多个Neuron连接就成为一个Neural Network
-- 每个LR都有自己的wight和bias，所有的LR的weight和bias集合起来就是这个NN的parameter（θ）
 
 ### 基本思想
 
@@ -764,26 +763,38 @@ ANN：Aritificial Neural Networks
 
 ### MCP模型
 
-模拟大脑，MCP模型将神经元简化为了三个过程：
+模拟大脑，MCP模型将神经元简化为了三个过程
 
-- 输入信号**线性加权**
-- 求和
-- **非线性激活**（阈值法）
+1. 输入信号**线性加权**
+2. 求和
+3. **非线性激活**（阈值法）
 
+### 神经元
 
+[神经元模型](# 神经元)
+
+- 把一个Logistic Regression称之为一个Neuron，多个Neuron连接就成为一个Neural Network
+- 每个LR都有自己的wight和bias，所有的LR的weight和bias集合起来就是这个NN的parameter（θ）
+  - θ通过training data得出
 
 ### Structure
 
-不同的LR连接就可以得到不同structure的NN
+LR通过不同的连接方式就可以得到不同的NN
 
-我们定义了NN的structure，就相当于define了一个function set（可以给NN设定不同的参数，它就变成了不同的function）
+定义了NN的structure，就相当于define了一个function set（通过给NN设定不同的参数，变成不同的function）
 
-- 决定有多少个hidden layer
-- 决定每个hidder layer 有多少个Neuron
+- **决定有多少个hidden layer**
+- **决定每个hidder layer有多少个Neuron**
 
-> Fully Connect Feedforward NetWork：全连接前向传播神经网络
->
-> input vector/output vector
+通过数据训练确 定了θ，就确定了一个function
+
+- 通过input vector就可以得到output vector
+
+### 全连接前向传播神经网络
+
+`Fully Connect Feedforward NetWork`
+
+- 一排2个Neuron，两两连接
 
 ![FCFFN](MachineLearning.assets/FCFFN.png)
 
@@ -791,25 +802,50 @@ ANN：Aritificial Neural Networks
 
 
 
-### Compute
+### 矩阵计算
 
-Matrix Operation：转换为矩阵计算，可以使用GPU加速
+Matrix Operation：矩阵计算**可以使用GPU加速**
 
+- 将每一个layer的weight集合起来，作为矩阵w1
+- 将每一个layer的bias集合起来，作为向量b1
 
+计算过程
 
-> y = wx+b
+1. 输入input vector X，计算a1
+   $$
+   a_1 = sigmoid(w^1x+b^1)
+   $$
+
+2. 将a1当成input vector ，计算a2
+   $$
+   a_2 = sigmoid(w^2a_1+b^2)\\
+   ⬇\\
+   a_2 = sigmoid(w^2sigmoid(w^1x+b^1)+b^2)
+   $$
+
+1. 层层计算，得到output vector Y
+
+> 一连串的矩阵计算
 
 ![NN运算](MachineLearning.assets/NN运算.png)
 
-### Feature
+### Output Layer
 
-output layer的feature不是直接从输入X抽取出来的，而是通过多个hidden layer的计算后抽取出来的一组feature
+**Feature**
 
-就相当于自动进行了特征提取（feature extractor）来代替了手动的特征工程（feature engineering）
+- Output Layer的输入feature不是直接从输入X抽取出来的，而是**通过多个hidden layer的计算后抽取出来的一组feature** 
+
+
+> 相当于自动进行了特征提取（feature extractor）来代替了手动的特征工程（feature engineering）
+
+**Softmax**
+
+- Multi-class Classifier要通过一个Softmax function
+- 一般将Output Layer也看成是一个Multi-class Classifier，所以最后一层会加上Softmax function
+
+> Softmax：将概率归一化，使得所有分类概率和为1
 
 ![NNFeature](MachineLearning.assets/NNFeature.png)
-
-
 
 
 
@@ -821,9 +857,11 @@ output layer的feature不是直接从输入X抽取出来的，而是通过多个
 
 Perceptrons
 
-感知机本质上是一种**线性模型**（linear model），其实就是**两层神经元组成的神经网络**，使用MCP模型对输入的多维数据进行二分类**classification**
+- 感知机本质上是一种**线性模型**（linear model），其实就是**两层神经元组成的神经网络**，使用MCP模型对输入的多维数据进行二分类**classification**
 
-它只有输出层神经元进行activation function处理，即只有一层功能神经元（function neuron），学习能力有限，**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
+
+- 它只有输出层神经元进行activation function处理，即只有一层功能神经元（function neuron），学习能力有限，**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
+
 $$
 f(x)=sign(w*x+b)
 $$
