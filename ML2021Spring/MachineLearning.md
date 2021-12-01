@@ -958,9 +958,17 @@ MLP：Multilayer Perceptrons
 
 z对w求偏微分的结果就是输入x的值
 
-- 后面的偏导值就是前面的Hiden Layer的输出值
+- 后面的偏导值就是前面的Hidden Layer的输出值
 
 ![forwardpass](MachineLearning.assets/forwardpass.png)
+
+计算结果
+
+- z对w=1和w=-2的偏微分都是-1
+- 然后hidden的输出是0.12，即下一层的输入
+  - 所以z对w=-1和w=-1的偏微分都是0.12
+
+![计算正向传播](MachineLearning.assets/计算正向传播.png)
 
 ### 反向传播
 
