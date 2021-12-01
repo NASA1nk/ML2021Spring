@@ -9,7 +9,7 @@ Machine Learning ≈ Looking For Function
 - **回归Regression**
   - The function outputs a scalar.
 - **分类Classification**
-  - Given options (classes), the function outputs the correct one.
+  - Given options (classes)，the function outputs the correct one.
 - **结构化Structured Learning**
   - create something with  structure (image, document)
 
@@ -17,13 +17,18 @@ Machine Learning ≈ Looking For Function
 >
 > 分类：离散
 
-## 监督学习supervised learning
+## 监督学习
 
-### 模型model
+`supervised learning`
 
-带有未知的parameter的function
+### 模型
 
-**线性模型Linear models**：
+`model`
+
+- 带有未知的parameter的function
+
+
+**线性模型Linear models**
 
 $y = b + wx$
 
@@ -32,9 +37,9 @@ $y = b + wx$
 - w：weight 
 - b：bias
 
-### 损失函数Loss
+### 损失函数
 
-`L(b,w)`
+Loss：`L(b,w)`
 
 Loss is a function of  parameters
 
@@ -44,17 +49,22 @@ Loss is a function of  parameters
 
 > Define Loss  from Training Data
 
-### 最优化Optimization
+### 最优化
+
+`Optimization`
 
 $w^*,b^* = arg\underset{w,b}{min} L$
 
-> arg min：求得使L最小的参数w和b
+> arg min：求得使Loss最小的参数w和b
 
-#### 梯度下降Gradient Descent
+#### 梯度下降
+
+`Gradient Descent`
 
 **存在问题**
 
-容易陷入局部最优解（local minima）而得不到全局最优解（global minima）
+- 容易陷入局部最优解（local minima）而得不到全局最优解（global minima）
+
 
 > 负梯度方向，LOSS下降最快
 
@@ -66,98 +76,97 @@ $w^*,b^* = arg\underset{w,b}{min} L$
    \frac{\partial L}{\partial b}|_{w = w^0,b = b^0}
    $$
 
-3. $$
+3. update
+   $$
    w^1 = w^0 - η\ \frac{\partial L}{\partial w}|_{w = w^0,b = b^0}\\
    b^1 = b^0 - η\ \frac{\partial L}{\partial b}|_{w = w^0,b = b^0}
    $$
+   
 
 > η：learning rate
 >
 > - negative：increase w,b
 > - positive：decrease w,b
 
+### 超参数
 
-
-### Activation Function
-
-#### 超参数HyperParameter
+`HyperParameter`
 
 机器学习模型中一般有两类参数
 
-- 一类需要从数据中学习和估计得到，称为模型参数（Parameter），即模型本身的参数，比如
+- 一类需要从数据中学习和估计得到，称为**模型参数**（Parameter），即**模型本身的参数**，比如
   - 线性回归直线的加权系数w（斜率）
   - 线性回归直线的偏差项b（截距）
-- 一类则是机器学习算法中的调优参数（Tuning Parameters），需要**人为设定**，称为超参数（Hyper Parameter），比如
+- 一类则是机器学习算法中的**调优参数**（Tuning Parameters），需要**人为设定**，称为**超参数**（Hyper Parameter），比如
   - 正则化系数λ
   - 决策树模型中树的深度
   - 梯度下降法中的学习率η
-  - 迭代次数epoch
-  - 批量大小batch-size
   - k近邻法中的k（最相近的点的个数）
+  - **迭代次数epoch**
+  - **批量大小batch-size**
 
 > 机器学习中的调参，实际上是调超参数
 
-#### 分段线性曲线Piecewise Linear Curves
+### 激活函数
 
-Piecewise Linear Curves = **Constant + sum of a set of Piecewise function**
+`Activation Function`
 
-再用Piecewise Linear Curves去逼近出各种Continuous function
+#### 分段线性曲线
 
-> piecewise function其实就是Hard sigmoid function
->
-> sigmoid function就是一个HyperParameter
+`Piecewise Linear Curves`
+
+1. 分段函数（piecewise function）其实就是Hard sigmoid function
+   1. sigmoid function就是一个Hyper Parameter
+2. Piecewise Linear Curves = **Constant + sum of a set of Piecewise function**
+3. 再用Piecewise Linear Curves去逼近出各种Continuous function
 
 #### Sigmoid Function
 
-- sigmoid function是一个在生物学中常见的S型的函数，也称为S型生长曲线
+- sigmoid function是一个在生物学中常见的**S型的函数**，也称为S型生长曲线
 - 在信息科学中由于其**单增以及反函数单增**等性质，sigmoid function常被用作**神经网络的阈值函数**（将变量映射到[0,1]之间）
 
 $$
-y = c\ \frac{1}{1+e^{-(b+wx_1)}}
-$$
-
-简写为
-$$
+y = c\ \frac{1}{1+e^{-(b+wx_1)}}\\
+⬇\\
 y = c\ sigmoid(b+wx_1)
 $$
+
 修改c，b，w​来逼近各种各样的piecewise function，从而得到各种Piecewise Linear Curves
 
 ![sigmoidfunction](MachineLearning.assets/sigmoidfunction.png)
 
 
 
-简单的Linear Model
+简单的Linear Model无法拟合复杂的问题，通过sigmoid function的叠加形成的Piecewise Linear Curves则可以
 $$
-y = b + wx
-$$
-就被通过sigmoid function的叠加形成的Piecewise Linear Curves替换
-
-$$
+y = b + wx_1 \\
+⬇\\
 y = b + \sum\limits_i\ c_i\ sigmoid(b_i+w_ix_1)
 $$
 
-即
+多变量
 $$
-y = b + \sum\limits_jw_jx_j
-$$
-替换为
-$$
+y = b + \sum\limits_jw_jx_j\\
+⬇\\
 y = b + \sum\limits_i c_i\ sigmoid(b_i+\sum\limits_j(w_{ij}x_j))
 $$
+> 其中
+>
+> - i：sigmoid function个数
+> - j：feature个数
+> - b：constant
+> - bi：bias
+>
 
-其中：
 
-- i：sigmoid function 个数
-- j：feature个数
-- b：constant
-- bi：bias
+
+在 $y = b + \sum\limits_i c_i\ sigmoid(b_i+\sum\limits_j(w_{ij}x_j))$ 中
+
+- wij（weight for xj for i-th sigmoid）：第i个激活函数中的第j个特征的权重
+
+- $r_i = b_i+\sum\limits_j(w_{ij}x_j)$ ：第i个激活函数的参数值
 
 取i = j = 3，就有
-
-> wij：weight for xj for i-th sigmoid 第i个激活函数的第j个特征的权重
->
-> ri：第i个sigmoid的参数值
-
 $$
 r_1 = b_1 + w_{11}x_1 + w_{12}x_2 + w_{13}x_3\\
 r_2 = b_2 + w_{21}x_1 + w_{22}x_2 + w_{23}x_3\\
@@ -174,13 +183,21 @@ $$
 
 简化形式，就有
 $$
-r = b + Wx​
+r = b + Wx
 $$
-ri通过sigmoid函数得到ai，即
+> 其中
+>
+> - r，b，x是3*1的列向量
+> - W是3*3的矩阵
 
-> a是ai组成的vector，r是ri组成的vector
+![拟合分段线性函数](MachineLearning.assets/拟合分段线性函数.png)
 
+参数ri通过sigmoid函数得到ai，ai组成a，即
 $$
+r_i = b_i+\sum\limits_j(w_{ij}x_j)\\
+⬇\\
+a_i = sigmoid(r_i)\\
+⬇\\
 a = σ(r)
 $$
 
@@ -188,33 +205,41 @@ $$
 
 ![sigmoid过程](MachineLearning.assets/sigmoid过程.png)
 
-所以传入ai后就有
+所以
 $$
 \begin{align*}\label{2}
-&y = b + c_1*a_1 + c_2*a_2 + c_3*a_3 \\
+&y = b + c_1*a_1 + c_2*a_2 + c_3*a_3 \\ \\
 &y = b+
 \left[\begin{matrix}c_1&c_2&c_3\end{matrix}\right]
 \left[\begin{matrix}a_1\\a_2\\a_3\end{matrix}\right]
-\\&y = b + c^T a
+\\\\
+&y = b + c^T a
 \end{align*}
 $$
-
-
-![sigmoid函数求y](MachineLearning.assets/sigmoid函数求y.png)
 
 带入a = σ(r)就有
 $$
 y=b+c^T\ σ(b+Wx)
 $$
-其中：
 
-- feature
-  - x
+
+![sigmoid函数求y](MachineLearning.assets/sigmoid函数求y.png)
+
+对于 $y=b+c^T\ σ(b+Wx)$
+
+- feature：x
+
 - unknown parameters
-  - W
-  - cT
-  - 第一个b是常量
-  - 第二个b是向量
+
+  - 矩阵W
+
+  - 向量c
+
+  - b
+
+    - 第一个b是常量
+
+    - 第二个b是向量
 
 将unknown parameters全部一起拼成新的列向量，也就是Loss Function
 $$
