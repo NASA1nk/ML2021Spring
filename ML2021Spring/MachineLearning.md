@@ -743,9 +743,9 @@ for x in tt_set:
 
 - Deep =  Many Hidden Layers
 
-> 为什么要用DL
+> Why DL
 >
-> 
+> - 任意一个连续的function，input vector（N维），output vector（M维）都可以用一个hidden layer的NN来表示，只要neuron够多
 
 ## 神经网络
 
@@ -904,13 +904,63 @@ MLP：Multilayer Perceptrons
 
 `Backpropagation`：BP
 
-**梯度消失问题**
+- 多层Hidden Layer，每层有成百上千个Neuron，导致**参数非常多**
+  - 高维度的θ
+- 需要有效的方法来计算Gradient Descent从而得到θ
 
-在**误差梯度**后项传递的过程中，后层梯度以乘性方式叠加到前层，由于Sigmoid函数的饱和特性，后层梯度本来就小，误差梯度传到前层时几乎为0，因此无法对前层进行有效的学习
+> **梯度消失问题**
+>
+> - 在**误差梯度**后项传递的过程中，后层梯度以乘性方式叠加到前层，由于Sigmoid函数的饱和特性，后层梯度本来就小，误差梯度传到前层时几乎为0，因此无法对前层进行有效的学习
+>
+>
+> **解决方案**
+>
+> - 无监督预训练（对权值进行初始化） + 有监督训练微调
+> - ReLU激活函数能够有效的抑制梯度消失问题（不再需要预训练和微调）
 
-**解决方案**
+## Chain Rule
 
-- 无监督预训练（对权值进行初始化） + 有监督训练微调
+- 链式求导法则
+  - 复合函数求偏导
 
-- ReLU激活函数能够有效的抑制梯度消失问题（不再需要预训练和微调）
+## BP算法计算
+
+1. 将一组θ输入NN得到yn
+2. yn与期望值y^n的距离函数定义为cn(θ)
+   1. **交叉熵**
+3. 所有的cn(θ)和定义为损失函数L(θ)
+4. 所以对损失函数L(θ)求微分就转换为对cn(θ)求偏微分
+
+> **损失函数（Loss function）是定义在单个训练样本上的**，也就是就算一个样本的误差
+
+![Backpropagation](MachineLearning.assets/Backpropagation.png)
+
+## 单神经元分析
+
+将梯度计算分成两个部分
+
+- 正向传播：Forward pass
+
+- 反向传播：Backward pass
+
+> cn(θ)对权重w求偏导可以拆分成
+>
+> - Backward pass
+>   - cn(θ)对z求偏导
+> - Forward pass 
+>   - z对w求偏导
+>
+> $z = b_i+\sum\limits_j(w_{ij}x_j)$ ：即z是激活函数的参数
+
+![BP算法神经元分析](MachineLearning.assets/BP算法神经元分析.png)
+
+### 正向传播
+
+z对w求偏微分的结果就是输入x的值
+
+- 后面的偏导值就是前面的Hiden Layer的输出值
+
+![forwardpass](MachineLearning.assets/forwardpass.png)
+
+### 反向传播
 
