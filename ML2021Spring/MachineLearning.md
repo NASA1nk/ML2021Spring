@@ -97,28 +97,28 @@ $w^*,b^* = arg\underset{w,b}{min} L$
 - 一类需要从数据中学习和估计得到，称为**模型参数**（Parameter），即**模型本身的参数**，比如
   - 线性回归直线的加权系数w（斜率）
   - 线性回归直线的偏差项b（截距）
-- 一类则是机器学习算法中的**调优参数**（Tuning Parameters），需要**人为设定**，称为**超参数**（Hyper Parameter），比如
+- 一类则是机器学习算法中的**调优参数**（Tuning Parameters），需要**人为设定**，称为**超参数**（HyperParameter），比如
   - 正则化系数λ
   - 决策树模型中树的深度
   - 梯度下降法中的学习率η
   - k近邻法中的k（最相近的点的个数）
   - **迭代次数epoch**
-  - **批量大小batch-size**
+  - **批量大小batch size**
 
 > 机器学习中的调参，实际上是调超参数
 
-### 激活函数
-
-`Activation Function`
-
-#### 分段线性曲线
+### 分段线性曲线
 
 `Piecewise Linear Curves`
 
 1. 分段函数（piecewise function）其实就是Hard sigmoid function
-   1. sigmoid function就是一个Hyper Parameter
+   1. sigmoid function其实也是一个HyperParameter（人工设定个数）
 2. Piecewise Linear Curves = **Constant + sum of a set of Piecewise function**
 3. 再用Piecewise Linear Curves去逼近出各种Continuous function
+
+### 激活函数
+
+`Activation Function`
 
 #### Sigmoid Function
 
@@ -233,7 +233,7 @@ $$
 
   - 矩阵W
 
-  - 向量c
+  - 向量cT
 
   - b
 
@@ -241,22 +241,27 @@ $$
 
     - 第二个b是向量
 
-将unknown parameters全部一起拼成新的列向量，也就是Loss Function
+将unknown parameters全部一起拼成新的向量θ
+
+- 矩阵W需要划分为向量组（row或col）再和cT、b、b一起拼接
+
 $$
 θ=\left[\begin{matrix}θ_1\\θ_2\\θ_3\\\vdots\end{matrix}\right]
 $$
 
-
-> 将W矩阵划分成向量再和cT、b、b一起拼接
-
-最优化求解
+对于 $y=b+c^T\ σ(b+Wx)$ 就是一个含有未知参数θ的model，给定一组θ值代入，就可以求得Loss
+$$
+Loss: L = \frac{1}{N}\sum|y-\bar{y}|
+$$
+然后对其进行最优化
 $$
 θ^* = arg\underset{θ}{min} L
 $$
 
 1. (Randomly) Pick an initial value $θ^0$
 
-2. $$
+2. computer gradient
+   $$
    g=\left[\begin{matrix}
    \frac{\partial L}{\partial θ_1}|_{θ = θ^0}\\
    \frac{\partial L}{\partial θ_2}|_{θ = θ^0}\\
@@ -270,7 +275,7 @@ $$
    g=\nabla L(θ^0)
    $$
 
-3. 更新
+3. update θ
 
    
    $$
@@ -295,69 +300,80 @@ $$
    \theta^1=\theta^0-\eta g
    $$
 
-> g：gradient
->
 > η：learning rate
 
 
 
 #### ReLU
 
-Rectified Linear  Unit
+Rectified Linear Unit
 $$
-y = c\ max(0,b+wx_1)
+y = c * max(0,b+wx_1)
 $$
 则model为
 $$
-y = b + \sum\limits_{2i} c_i\ max(0,b_i+\sum\limits_j(w_{ij}x_j))
+y = b + \sum\limits_{2i} c_i * \ max(0,b_i+\sum\limits_j(w_{ij}x_j))
 $$
-
 
 ### Batch
 
 将数据集随机分成多个batch
 
-1. 拿出第一个batch的数据来算loss-L1
+1. 用第一个batch的数据来算Loss：L1
 
 2. 用L1来算出g
    $$
    g=\nabla L^1(θ^0)
    $$
 
-3. 用g来更新参数
+3. 用g来更新参数θ
    $$
    \theta^1=\theta^0-\eta g
    $$
 
-4. 再用第二个batch的数据来算loss-L2
+4. 再用第二个batch的数据来算Loss：L2
 
 5. 用L2来算出g
 
-6. 用g来更新参数
+6. 用g来更新参数θ
 
 7. ......
 
-**所有的batch计算看成一次，叫做epoch**，每一次的更新参数，叫做Updata
+每一次的batch更新参数，叫做一次Updata，**将所有的batch计算看成一次，叫做epoch**
 
-> 做了一次epoch训练是不知道有多少次Updata的，取决于batch size（多少个batch就有多少次Update）
->
-> batch size是一个hyperParameter
+- 一次epoch是不知道有多少次Updata的，取决于batch size
+  - 有多少个batch就有多少次Update
 
+- batch size是一个HyperParameter
 
+![batch最优化](MachineLearning.assets/batch最优化.png)
 
-## 神经元Neuron
+## 神经元
 
-Deep =  Many hidder layers
+`Neuron`
+
+Deep =  Many Hidden Layers
 
 1. 上述通过sigmoid function叠加出来的的Model就是**神经元模型**（Neuron）
 2. 多层Neuron连接起来就是神经网络（Neural Networks）
-3. 除开输入输出层layer，中间每一排的Neuron就叫做Hidden Layer，很多Layer就被称作Deep，整个模型就叫Deep Learning
+3. 除开输入输出层，中间的Neuron就叫做Hidden Layer，很多Layer就被称作Deep，整个模型就叫Deep Learning
+
+> 计算出a后并不直接算出y，而是将a作为新的sigmoid函数的输入x继续拟合，向前传递
+> $$
+> a_i = sigmoid(b_i+\sum\limits_j(w_{ij}x_j))
+> $$
+
+
 
 ![多个Neuron](MachineLearning.assets/多个Neuron.png)
 
+![Neural network layer](MachineLearning.assets/Neural network layer.png)
 
 
-## 过拟合Overfittting
+
+## 过拟合
+
+`Overfittting`
 
 
 
@@ -367,7 +383,7 @@ An open source **machine learning framework**
 
 A Python package that provides two high-level features
 
-- **Tensor** computation (like NumPy) with strong GPU acceleration
+- **Tensor** computation（like NumPy）with strong GPU acceleration
 - Deep neural networks built on a tape-based autograd system
 
 > Facebook AI 
@@ -378,11 +394,8 @@ A Python package that provides two high-level features
 
 **张量**
 
-torch中的一种数据结构
+- torch中的一种数据结构：High-dimensional matrix (array)，即各种维度的数组
 
-High-dimensional matrix (array)
-
-> 各种维度的数组
 
 ### Data Type
 
@@ -459,11 +472,11 @@ y = x.sum()
 y = x.mean()
 ```
 
-
-
 ## Device
 
-Default：tensors & modules will be computed with **CPU**
+Default
+
+- tensors & modules will be computed with **CPU**
 
 `model = MyModel().to(device)`
 
@@ -477,15 +490,13 @@ Default：tensors & modules will be computed with **CPU**
 
 > Parallel computing：拆分矩阵运行
 
-
-
 ## Gradient
 
 计算矩阵微分
 
 `backward()`
 
-1. 
+1. 矩阵
    $$
    x=
    \left[
@@ -495,7 +506,7 @@ Default：tensors & modules will be computed with **CPU**
    \right]
    $$
 
-2. 计算
+2. 矩阵
    $$
    z=\sum_i\sum_j x_{i,j}^2
    $$
@@ -523,8 +534,6 @@ z.backward()
 # 查看 tensor([[ 2., 0.],[-2., 2.]])
 x.grad
 ```
-
-
 
 ## Data
 
@@ -707,8 +716,6 @@ for x, y in dv_set:
 avg_loss = total_loss / len(dv_set.dataset)
 ```
 
-
-
 Testing
 
 ```python
@@ -740,8 +747,8 @@ for x in tt_set:
 
 ANN：Aritificial Neural Networks
 
-> 简称为神经网络NN：Neural Networks
->
+- 简称为神经网络NN：Neural Networks
+
 > 生物神经网络：神经元的电位超过一个阈值threshold，那么它就会被激活（兴奋），向其他神经元发送化学物质
 
 [神经元模型](# 神经元Neuron)
@@ -857,7 +864,7 @@ MLP：Multilayer Perceptrons
 
 # 反向传播BP算法
 
-BP：Backpropagation
+`Backpropagation`：BP
 
 **梯度消失问题**
 
