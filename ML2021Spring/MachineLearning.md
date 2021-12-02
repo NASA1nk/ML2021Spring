@@ -1147,6 +1147,10 @@ Image
 
 ![filter](MachineLearning.assets/filter.png)
 
+filter对应的tensor是一组参数值
+
+![filter是一组参数](MachineLearning.assets/filter是一组参数.png)
+
 **总结**
 
 - 在Fully Connected Layer上应用Receptive Field和Parameter Sharing它就是一个Convolutional Layer，应用了Convolutional Layer的NN就是CNN
@@ -1190,40 +1194,53 @@ Convolution Layer（卷积层）也可以看成是有很多filter的layer
 
 - 然后继续将这个feature map输入下一个Convolution Layer
 - 此时，后面一个Convolution Layer的filter的深度就必须是前面这个feature map的channel数
+  - 所以每次的convolution中的filter都要看上一层中所生成图像的channel数来确定filter的数量
 
 ![featuremap对应的filter](MachineLearning.assets/featuremap对应的filter.png)
 
+### Receptive field大小
 
+关于Receptive field大小的问题
+
+将feature map看成一张新的图片输入，并且kernel size仍然设置为3
+
+- 此时其实可以看出，`3*3`右下角的位置其实是对应原图片`5*5`右下角的位置
+- 即经过一层Convolutional Layers的新的图片，Receptive field的范围变大的
+- 所以Convolutional Layers越多，每个filter观察的范围是越来越大的
 
 ![扩大范围](MachineLearning.assets/扩大范围.png)
-
-
 
 ## Pooling
 
 池化：下采样
 
-- pooling就是做subsampling，将卷积后得到的feature划分为几个区域
-- 在每个区域中选取一个代表值，组成一个新的特征矩阵
-  - Max Pooling：取最大值
-  - Mean Pooling：取平均值
-- 用新的特征矩阵来参与后续运算
+pooling就是做subsampling，目的是减少运算量
 
-- 目的是减少运算量
+1. 将卷积后得到的feature**划分为几个区域**
+2. **在每个区域中选取一个代表值**，组成一个新的特征矩阵（feature map）
+   1. Max Pooling：取最大值
+   2. Mean Pooling：取平均值
+
+- 用新的特征矩阵来参与后续运算
+  - channel数不会变
+
+> Subsampling the pixels will not change the object
+>
+> - 例如将图片的偶数行和奇数列都去掉，图片会变成原来的1/4，但是不会影响到图片本身的内容
+>
+> pooling不是一个参数，也不需要学习，类似于激活函数的作用
 
   可以进行多次卷积和池化操作
 
 - 可以进行几次卷积操作后就进行一次池化操作
+- 现在算力足够强，可以不使用池化层，CNN全部由卷积层构成 
+  - Alpha go就没有用pooling
 
-> 现在算力足够强，可以不使用池化层，CNN全部由卷积层构成 
->
-> Alpha go就没有用pooling
+![pooling作用](MachineLearning.assets/pooling作用.png)
 
 ## Flatten
 
-
-
-
+将新得到的feature map拉直（Flatter）成一维的参数向量，然后放到fully connected network里面进行训练，最后得到分类结果
 
 # Self-Attention
 
