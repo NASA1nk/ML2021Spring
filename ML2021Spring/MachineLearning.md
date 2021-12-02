@@ -850,55 +850,6 @@ Matrix Operation：矩阵计算**可以使用GPU加速**
 
 
 
-
-
-# 感知机
-
-Perceptrons
-
-- 感知机本质上是一种**线性模型**（linear model），其实就是**两层神经元组成的神经网络**，使用MCP模型对输入的多维数据进行二分类**classification**
-
-
-- 它只有输出层神经元进行activation function处理，即只有一层功能神经元（function neuron），学习能力有限，**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
-
-$$
-f(x)=sign(w*x+b)
-$$
-
-$$
-sign(x)=
-\left\{
-\begin{aligned}
-+1, \quad x\ge0\\
--1, \quad x\lt0\\
-\end{aligned}
-\right.
-$$
-
-
-
-> 只有线性可分的时候perceptron才能达到收敛converge，异或问题是线性不可分的，需要使用多层Perceptron
->
-> Model Bias：Linear models have severe limitation（表达能力弱）
-
-- 输入层（特征向量）
-- 隐含层
-- 输出层（分类结果）
-
-
-
-# 多层感知机
-
-MLP：Multilayer Perceptrons
-
-有多个隐含层（hidden layer）的Perceptrons
-
-> hidden layer 和output layer都是function neuron
-
-可以使用反向传播BP算法，然后使用Sigmoid激活函数进行非线性映射，解决非线性分类和学习的问题
-
-
-
 # 反向传播BP算法
 
 `Backpropagation`：BP
@@ -952,6 +903,8 @@ cn(θ)对权重w求偏导可以拆分成
   - z对w求偏导
 
 > $z = b+\sum\limits_i(w_ix_i)$ ：即z是激活函数的参数
+>
+> cn(θ)定义在最后
 
 ![BP算法神经元分析](MachineLearning.assets/BP算法神经元分析.png)
 
@@ -973,20 +926,17 @@ z对w求偏微分的结果就是输入x的值
 
 ### 反向传播
 
-难点在于cn(θ)是最后一层，所以要经过中间的复杂变换
+难点在于cn(θ)是最后一层，中间会经过复杂的变换，所以另一部分偏导很难计算
 
-- 激活函数使用Sigmod函数
-
+> 激活函数使用Sigmod函数
+>
 > $a = sigmoid(z)$ ：即参数z经过激活函数后变成a
 
-**过程**
+**正常过程**
 
 1. 先只考虑下一步，将cn(θ)继续拆分为对sigmoid函数求偏导
 2. 然后再将sigmoid函数对参数z求偏导
-   1. sigmoid函数偏导如下图
-   2. 偏导结果是一个常数，因为z在前向传播的时候就已经确定了
-
-
+   1. sigmoid函数偏导结果是一个常数，**因为z在前向传播的时候就已经确定了**
 
 ![BP拆分求偏导](MachineLearning.assets/BP拆分求偏导.png)
 
@@ -996,12 +946,86 @@ z对w求偏微分的结果就是输入x的值
    1. cn(θ)对z'求偏导
    2. z'对a求偏导
 
-> z'对a求偏导就和z对x求偏导相似，就是权重值w'
-
-![bp拆分求偏导2](MachineLearning.assets/bp拆分求偏导2.png)
+> z'对a求偏导就和正向传播的z对x求偏导相似，值就是权重值w'
 
 但是因为后续还有复杂的计算，所以cn(θ)对z'求偏导仍然是无法直接得到答案的，如果假设cn(θ)对z'求偏导答案已知
 
-就有
+那么cn(θ)对的偏导结果就可以写成如下式子
 
-![bp偏导结果](MachineLearning.assets/bp偏导结果.png)
+![bp拆分求偏导2](MachineLearning.assets/bp拆分求偏导2.png)
+
+这个结果公式可以看成从反向构建的一个NN，正向传播的计算结果
+
+- z'作为NN的输入，经过权重w运算，最后通过sigmoid对z偏导结果的放大就是cn(θ)对z的偏导结果
+
+![反向传播神经元](MachineLearning.assets/反向传播神经元.png)
+
+如果z'对应连接的的neuron刚好是output layer时，那么它们的值就是已知的输出
+
+- 可以直接代入计算
+
+![反向传播输出层](MachineLearning.assets/反向传播输出层.png)
+
+如果z'对应连接的neuron是hidden layer时，它的**值需要根据再后面一层来计算**
+
+- 而**再后面一层又需要更后面一层来计算**
+- 直到到达output layer，再一层层算回来（即反向传播）
+
+![反向传播中间层](MachineLearning.assets/反向传播中间层.png)
+
+**反向过程**
+
+- 所以直接从Output Layer开始反向计算，就可以极大的提升效率
+
+![从后往前计算](MachineLearning.assets/从后往前计算.png)
+
+![bp整个流程](MachineLearning.assets/bp整个流程.png)
+
+# 感知机
+
+`Perceptrons`
+
+- 感知机本质上是一种**线性分类模型**（linear model）
+  - 其实就是**两层神经元组成的神经网络**
+- 使用**MCP模型**对输入的多维数据进行二分类
+
+
+- 它只有output layer进行了激活函数的处理，即只有一层功能神经元（function neuron），学习能力有限，**只能处理线性分类问题**，就连最简单的XOR（异或）问题都无法正确分类
+
+  - 只有线性可分的时候感知机才能达到收敛，异或问题是线性不可分的，需要使用多层感知机才能解决
+
+- 是支持向量机算法的基础
+
+$$
+f(x)=sign(w*x+b)
+$$
+
+$$
+sign(x)=
+\left\{
+\begin{aligned}
++1, \quad x\ge0\\
+-1, \quad x\lt0\\
+\end{aligned}
+\right.
+$$
+
+> 
+>
+> Model Bias：Linear models have severe limitation（表达能力弱）
+
+- 输入层
+  - 特征向量
+- 隐含层
+- 输出层
+  - 分类结果
+
+## 多层感知机
+
+`Multilayer Perceptrons`：MLP
+
+- 有多个hidden layer的感知机
+- 可以使用反向传播BP算法，然后使用Sigmoid激活函数进行非线性映射，解决非线性分类和学习的问题
+
+> hidden layer 和output layer都是function neuron
+
