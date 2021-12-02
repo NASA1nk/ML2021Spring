@@ -370,7 +370,19 @@ $$
 
 `Overfitting`
 
+![overfitting](MachineLearning.assets/overfitting.png)
 
+**解决方法**
+
+- more training data
+- data augmentation
+- constrained model
+  - less parameters
+  - less features
+  - early stopping
+  - dropout
+
+> 永远不要用测试集参与训练
 
 # PyTorch
 
@@ -981,6 +993,8 @@ z对w求偏微分的结果就是输入x的值
 
 ![bp整个流程](MachineLearning.assets/bp整个流程.png)
 
+
+
 # 感知机
 
 `Perceptrons`
@@ -1029,3 +1043,34 @@ $$
 
 > hidden layer 和output layer都是function neuron
 
+
+
+# 卷积神经网络
+
+`Convolutional Neural Network`：CNN
+
+-  Network Architecture designed for **Image Classification**
+
+Image
+
+- 图片的像素点由RGB三色组成，所以一张图可以看出三个channels叠加而成，每一个channel由RGB中的一个颜色组成
+- 所以可以图片可以看成一个三维的tensor（张量）
+
+- 将这个三维的tensor拉直拼接就组成了一个NN的input vector
+  - 假设图片长宽为100，那么input vector就是`100*100*3`
+
+![image](MachineLearning.assets/image.png)
+
+**问题**
+
+- fully connected的NN参数太多，太过复杂
+
+**解决方法**
+
+- 机器和人都是通过图片的一些critical patterns来识别分类
+- 所以图片肿的大部分都是无用的信息，只要把图片中的一部分作为输入就可以了，如
+  - 嘴巴
+  - 爪子
+  - 眼睛
+
+> patterns are much smaller than the whole image
