@@ -1051,28 +1051,30 @@ $$
 
 -  Network Architecture designed for **Image Classification**
 
+> Alpha go：围棋和图片也有共性
+
 Image
 
 - 图片的像素点由RGB三色组成，所以一张图可以看成是RGB的三个channel叠加而成
   - 每一个channel由RGB中的一个颜色组成
 - 所以可以图片可以看成一个**三维的tensor**（张量）
-
 - 将这个三维的tensor**拉直拼接**就组成了一个NN的input vector
   - 假设图片长宽为100，那么input vector就是`100*100*3`
 
-![image](MachineLearning.assets/image.png)
-
-## Receptive field
+> 黑白图片的channel就等于1
 
 **问题**
 
 - Fully connected的NN需要的参数太多，太过复杂
 
-**解决方法**
+**所以要使用CNN来简化神经网络的架构**
 
-使用CNN来**简化神经网络的架构**
+![image](MachineLearning.assets/image.png)
 
-- 机器和人都是通过图片的一些critical patterns来识别分类，而这些patterns是不需要看整张图片的
+## Receptive field
+
+机器和人都是通过图片的一些critical patterns来识别分类，而这些patterns是不需要看整张图片的
+
 - 即图片中的大部分都是无用的信息，只要把图片中的一部分有用信息作为输入就可以了，如
   - 嘴巴
   - 爪子
@@ -1080,16 +1082,20 @@ Image
 
 > patterns are much smaller than the whole image
 
+### 简化
+
 让每一个neuron只关注一部分，称为Receptive field
 
 - 这一部分即patterns对应的图片区域
 - 然后将这一部分的数据拉直，作为input vector输入对应的neuron
 
 > 图中选择一个`3*3*3`的Receptive field，所以对应参数就减少为`3*3*3`，将它输入对应的neuron
+>
+> 增加了对neruon的限制：只关注一部分区域
 
 ![Receptive field](MachineLearning.assets/Receptive field.png)
 
-**Receptive field设计**
+**Receptive field**
 
 1. 不同的neuron可以对应相同的Receptive field
 2. 不同的neuron对应的Receptive field大小可以不同
@@ -1097,9 +1103,9 @@ Image
    2. 各种形状均可
 3. 不同的neuron对应的Receptive field之间可以重叠 
 
-**经典Receptive field设计**
+### 设计
 
-1. 一般会考虑所有的channel（默认深度一致，均为3），所以只需要指定长和宽即可
+1. Receptive field一般会考虑所有的channel（默认深度一致，均为3），所以只需要指定长和宽即可
    1. **长和宽称为kernel size**
 2. 同一个Receptive field一般由一组neuron负责关注处理
 3. 一般通过移动（上下，左右）一个Receptive field来作为新的Receptive field
@@ -1109,7 +1115,15 @@ Image
       1. **补0处理称为padding**
 4. 通过移动就会覆盖图片的所有地方
 
+这个在Receptive field区域检测的过程就称为**卷积（Convolution）特征提取**
 
+这个指定长和宽的部分就称为**卷积核（Convolution Kernel）**
+
+卷积特征提取就通过卷积核实现
+
+> 卷积特征提取利用了自然图像的统计平稳性，即这一部分学习的特征也能用在另一部分上
+
+![receptivefield设计](MachineLearning.assets/receptivefield设计.png)
 
 ## Parameter sharing
 
@@ -1117,8 +1131,100 @@ Image
 
 - 不同的pattern在不同的图片会出现在不同的地方，所以pattern所在的Receptive field会由不同neuron负责处理，这样就需要每一个Receptive field都有一个neuron来处理这个pattern，冗余
 
-**解决方法**
+### 简化
 
-- 让不同的neuron之间共享参数
+- 让负责不同的Receptive field的neuron之间共享参数
   - Receptive field是不一样的，但是它们的weight是完全一样的
 - 因为不同的neuron负责不同的Receptive field，所以它们的input vector也是不同的，所以相同的weight也会得到不同的output vector
+  - 同一个Receptive field的neuron不会共享参数
+- 不同的Receptive field的每个neuron之间共享参数
+  - 多个参数构成一个向量（矩阵），称为一个filter
+  - filter的值是通过学习得到的
+
+> 增加了对neruon的限制：无法选择参数
+>
+> 不同的Receptive field的相同颜色的neuron就共用一组参数，filter
+
+![filter](MachineLearning.assets/filter.png)
+
+**总结**
+
+- 在Fully Connected Layer上应用Receptive Field和Parameter Sharing它就是一个Convolutional Layer，应用了Convolutional Layer的NN就是CNN
+
+> 在处理图像领域的任务，较大的moder bias反而有更好的表现
+
+![CNN的优点](MachineLearning.assets/CNN的优点.png)  
+
+## Filter
+
+Convolution Layer（卷积层）也可以看成是有很多filter的layer
+
+- 一个filter就是一个卷积核的大小的tensor，作用就是在图片上抓取一个pattern
+  - 这个pattern只有在卷积核大小的范围内才会被抓取到
+- filter这个tensor里面的数值就是model的parameter，是未知的
+  - 通过Gradient Descent来找出值 
+
+![filter卷积](MachineLearning.assets/filter卷积.png)
+
+## Feature map
+
+假设filter的tensor里面的数值已经得到，这时候就要用filter在图片上抓取特征
+
+1. 将第一个filter的tensor值和图片对应的Receptive field的值做卷积运算
+   1. 一个Receptive field得到一个值
+2. 然后将这个filter移动stride到达新的Receptive field，继续做卷积运算，知道覆盖了整个图片
+   1. 得到第一个filter计算出来的一层channel的值
+3. 然后再用剩下的filter计算......
+
+![filter卷积结果值](MachineLearning.assets/filter卷积结果值.png)
+
+**所有的filter对整个图片运算完就得到feature map**
+
+- 这个feature map的channel数就是filter的个数
+
+即一张图片通过一个Convolution Layer的众多filter运算后，就会得到一个feature map
+
+![featuremap](MachineLearning.assets/featuremap.png)
+
+这个feature map就可以看成一张新的图片，但是channel数变多了
+
+- 然后继续将这个feature map输入下一个Convolution Layer
+- 此时，后面一个Convolution Layer的filter的深度就必须是前面这个feature map的channel数
+
+![featuremap对应的filter](MachineLearning.assets/featuremap对应的filter.png)
+
+
+
+![扩大范围](MachineLearning.assets/扩大范围.png)
+
+
+
+## Pooling
+
+池化：下采样
+
+- pooling就是做subsampling，将卷积后得到的feature划分为几个区域
+- 在每个区域中选取一个代表值，组成一个新的特征矩阵
+  - Max Pooling：取最大值
+  - Mean Pooling：取平均值
+- 用新的特征矩阵来参与后续运算
+
+- 目的是减少运算量
+
+  可以进行多次卷积和池化操作
+
+- 可以进行几次卷积操作后就进行一次池化操作
+
+> 现在算力足够强，可以不使用池化层，CNN全部由卷积层构成 
+>
+> Alpha go就没有用pooling
+
+## Flatten
+
+
+
+
+
+# Self-Attention
+
+Neural Network Structure
