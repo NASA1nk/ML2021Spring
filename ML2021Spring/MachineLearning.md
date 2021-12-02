@@ -1053,24 +1053,72 @@ $$
 
 Image
 
-- 图片的像素点由RGB三色组成，所以一张图可以看出三个channels叠加而成，每一个channel由RGB中的一个颜色组成
-- 所以可以图片可以看成一个三维的tensor（张量）
+- 图片的像素点由RGB三色组成，所以一张图可以看成是RGB的三个channel叠加而成
+  - 每一个channel由RGB中的一个颜色组成
+- 所以可以图片可以看成一个**三维的tensor**（张量）
 
-- 将这个三维的tensor拉直拼接就组成了一个NN的input vector
+- 将这个三维的tensor**拉直拼接**就组成了一个NN的input vector
   - 假设图片长宽为100，那么input vector就是`100*100*3`
 
 ![image](MachineLearning.assets/image.png)
 
+## Receptive field
+
 **问题**
 
-- fully connected的NN参数太多，太过复杂
+- Fully connected的NN需要的参数太多，太过复杂
 
 **解决方法**
 
-- 机器和人都是通过图片的一些critical patterns来识别分类
-- 所以图片肿的大部分都是无用的信息，只要把图片中的一部分作为输入就可以了，如
+使用CNN来**简化神经网络的架构**
+
+- 机器和人都是通过图片的一些critical patterns来识别分类，而这些patterns是不需要看整张图片的
+- 即图片中的大部分都是无用的信息，只要把图片中的一部分有用信息作为输入就可以了，如
   - 嘴巴
   - 爪子
   - 眼睛
 
 > patterns are much smaller than the whole image
+
+让每一个neuron只关注一部分，称为Receptive field
+
+- 这一部分即patterns对应的图片区域
+- 然后将这一部分的数据拉直，作为input vector输入对应的neuron
+
+> 图中选择一个`3*3*3`的Receptive field，所以对应参数就减少为`3*3*3`，将它输入对应的neuron
+
+![Receptive field](MachineLearning.assets/Receptive field.png)
+
+**Receptive field设计**
+
+1. 不同的neuron可以对应相同的Receptive field
+2. 不同的neuron对应的Receptive field大小可以不同
+   1. 维度也可以不同（不同的channel个数）
+   2. 各种形状均可
+3. 不同的neuron对应的Receptive field之间可以重叠 
+
+**经典Receptive field设计**
+
+1. 一般会考虑所有的channel（默认深度一致，均为3），所以只需要指定长和宽即可
+   1. **长和宽称为kernel size**
+2. 同一个Receptive field一般由一组neuron负责关注处理
+3. 一般通过移动（上下，左右）一个Receptive field来作为新的Receptive field
+   1. **移动的步长就称为stride**（hyper parameter）
+   2. 一般不同的Receptive field之间都会有高度的重叠，否则边界的pattern无法被检测到
+   3. 如果移动后，有一部分超出了图片的范围，那就要对超出部分做补0处理
+      1. **补0处理称为padding**
+4. 通过移动就会覆盖图片的所有地方
+
+
+
+## Parameter sharing
+
+**问题**
+
+- 不同的pattern在不同的图片会出现在不同的地方，所以pattern所在的Receptive field会由不同neuron负责处理，这样就需要每一个Receptive field都有一个neuron来处理这个pattern，冗余
+
+**解决方法**
+
+- 让不同的neuron之间共享参数
+  - Receptive field是不一样的，但是它们的weight是完全一样的
+- 因为不同的neuron负责不同的Receptive field，所以它们的input vector也是不同的，所以相同的weight也会得到不同的output vector
