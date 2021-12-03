@@ -1047,7 +1047,7 @@ $$
 
 # 卷积神经网络
 
-`Convolutional Neural Network`：CNN
+`Convolutional Neural Network`：
 
 -  Network Architecture designed for **Image Classification**
 
@@ -1242,9 +1242,9 @@ pooling就是做subsampling，目的是减少运算量
 
 将新得到的feature map拉直（Flatter）成一维的参数向量，然后放到fully connected network里面进行训练，最后得到分类结果
 
-# Self-Attention
+# 自注意力机制
 
-自注意力机制
+Self-Attention
 
 **问题**
 
@@ -1435,6 +1435,8 @@ Query-Key-Value
 - 只有Wq，Wk，Wv三个权重矩阵是未知参数，需要通过数据训练找到
 - 其余的都是人为设定好的参数
 
+> A就是一个L*L的矩阵，L是sequence的长度
+
 ![整个计算过程](MachineLearning.assets/整个计算过程.png)
 
 ## Multi-head Self-attention
@@ -1492,3 +1494,68 @@ Query-Key-Value
 > 也有其他的生成方法，甚至可以当成一个可以学习的参数
 
 ![PositionalEncoding](MachineLearning.assets/PositionalEncoding.png)
+
+
+
+## 对比CNN
+
+CNN可以看成是一个简化版的Self-attention
+
+- CNN在做卷积的时候，考虑的是Receptive field内的信息
+
+- 而Selt-attention考虑的是整个输入的信息
+
+> Self-attention只要设置合适的参数，就可以做到CNN能做到的事情
+
+![对比CNN](MachineLearning.assets/对比CNN.png)
+
+![Self-attentionvsCNN](MachineLearning.assets/Self-attentionvsCNN.png)
+
+## 对比RNN
+
+Self-attention和RNN都可以处理序列数据
+
+- RNN得到结果时必须按照时间步的顺序（正序或逆序）来生成
+  - RNN无法并行处理所有的输出
+    - 影响到训练的效率
+  - RNN很难考虑到比较远的输入
+    - 要考虑很远的输入就必须保存到内存中，然后一步一步传递
+
+> 利用双向RNN的设计可以考虑整个序列信息
+
+![对比RNN](MachineLearning.assets/对比RNN.png)
+
+
+
+## Graph
+
+Self-attention还可以用在图结构上
+
+- 图中每个节点看成一个输入
+- 图结构中的边可以看成有关联的向量，就可以形成一个稀疏矩阵
+
+只对邻接的节点做相关性计算
+
+
+
+# Transformer
+
+Transformer就是一个Sequence to sequence（**Seq2seq**）model
+
+- 由机器自己决定向量序列在输出中对应的标签数量
+
+> 输入和输出的长度没有绝对的关系
+
+一般的seq2seq model里面会分成两块
+
+- Encoder
+- Decoder
+
+**seq2seq过程**
+
+1. 输入一个sequence
+2. 由Encoder负责处理这个sequence
+3. 把处理好的结果输入Decoder
+4. 由Decoder决定它要输出什么样的sequence
+
+![seq2seq组成](MachineLearning.assets/seq2seq组成.png)
