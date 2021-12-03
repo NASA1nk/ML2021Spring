@@ -1244,7 +1244,7 @@ pooling就是做subsampling，目的是减少运算量
 
 # Self-Attention
 
-自注意力机制：Neural Network Structure
+自注意力机制
 
 **问题**
 
@@ -1287,15 +1287,208 @@ pooling就是做subsampling，目的是减少运算量
 
 **问题**
 
+- 要建立输入向量序列的**长依赖关系**，所以模型要考虑**整个向量序列**的信息
 - 但是窗口大小始终是有限的，如果要考虑整个sequence就会出现问题
-- 因为sequence是变长的，而且窗口太大，参数就会变大，运算量就会变大，并且容易overfitting
+  - 因为sequence是变长的，而且窗口太大，参数就会变大，运算量就会变大，并且容易overfitting
+
+> **通常可以使用卷积网络CNN或循环神经网络RNN进行编码来得到一个相同长度的输出向量序列**
+>
+> 基于卷积或循环神经网络的序列编码都是一种局部的编码方式，**只建模了输入信息的局部依赖关系**
+>
+> 虽然循环神经网络理论上可以建立长距离依赖关系，但是由于**信息传递的容量以及梯度消失问题**，实际上也只能建立短距离依赖关系
 
 
 
+## Self-attention函数
+
+Self-attention会考虑整个sequence的信息
+
+- **进过Self-Attention的输出序列长度是和输入序列的长度一样的，并且对应的输出向量考虑了整个输入序列的信息**
+- 然后将考虑了整个sequence的输出向量输入到fully connected network中做后续处理
+
+> fully connected network专注于处理某一个位置的信息
+
+![Self-Attention功能](MachineLearning.assets/Self-Attention功能.png)
+
+Self-Attention可以和fully connected network交替使用多次以提高网络的性能
+
+![交替使用Self-Attention](MachineLearning.assets/交替使用Self-Attention.png)
+
+## 工作原理
+
+Self-Attention的输入可以是原始的sequence，也可能是hidden layer的output sequence（有可能前面做过一些处理） 
+
+- Self-attention对应一个输入向量的输出向量，都是考虑了所有的输入向量生成出来的
+
+> 以b1为例，首先要根据b1的输入a1找到sequence中其它和a1相关的向量
+
+![Self-attention原理](MachineLearning.assets/Self-attention原理.png)
+
+### 相关性分析
+
+Self-Attention的相关性分析计算模组一般有两种
+
+- Dot-product
+- Additive
+
+将2个向量输入到module中，就会输出向量之间的相关性α
+
+> 相关性用α表示
+
+#### Dot-product
+
+1. 将两个向量分别和不同的权重矩阵相乘得到向量q和k
+2. 然后将向量q和k做点积运算得到一个标量，就是α
+
+> 最常用的方法，用于transformer中
+
+![Dotproduct](MachineLearning.assets/Dotproduct.png)
+
+### Additive
+
+1. 将两个向量分别和不同的矩阵相乘得到向量q和k
+2. 然后将向量q和k串起来输入到一个激活函数（tanh）中
+3. 再通过一个矩阵进行线性变换得到α
+
+![Additive](MachineLearning.assets/Additive.png)
 
 
-**通常可以使用卷积网络CNN或循环神经网络RNN进行编码来得到一个相同长度的输出向量序列**
 
-基于卷积或循环神经网络的序列编码都是一种局部的编码方式，**只建模了输入信息的局部依赖关系**
+### QKV模型
 
-虽然循环神经网络理论上可以建立长距离依赖关系，但是由于**信息传递的容量以及梯度消失问题**，实际上也只能建立短距离依赖关系
+Query-Key-Value
+
+- 为了提高模型能力，自注意力模型经常采用**查询-键-值模型**
+
+**attention score**
+
+1. 将a1和矩阵Wq相乘得到q1
+   1. **q1被称为query**
+2. 然后将其他向量a2和矩阵Wk相乘得到k2
+   1. **k2被称为key**
+3. 然后**将q1和k2做点积运算**得到（α1，2）
+   1. **（α1，2）就被称为attention score**，表示a1和a2之间的相关性
+4. 然后计算其他剩余的向量a3，a4和a1的关联性
+
+![attentionscore](MachineLearning.assets/attentionscore.png)
+
+**softmax**
+
+- 在计算完a1和所有向量的相关性之后，将得到的相关性α输入到softmax中得到α’，然后利用α’来抽取出这个sequence的信息
+  - 根据attention score可以知道sequence中哪些向量和a1是最有关系的
+
+> 这个softmax和分类使用的softmax时一样的，使用ReLU或其他激活函数代替softmax也是可以的，根据实际效果来
+
+![相关性处理](MachineLearning.assets/相关性处理.png)
+
+**抽取信息**
+
+1. 每一个向量分别乘上矩阵Wv得到向量v
+2. 将向量v和对应的α’相乘，然后再相加得到b1
+   1. 如果某一个向量和a1的相关性很强，那么它的α’就会很大，那么它的v就会接近于b1的值
+   2. 即b1中的大部分信息来自于这个v
+
+> 向量v可以看成输入向量a携带的信息编码
+
+![抽取特征](MachineLearning.assets/抽取特征.png)
+
+**注意**
+
+- 在计算b1的时候，b2，b3，b4也都会同时被计算出来
+
+## 矩阵计算
+
+**计算QKV**
+
+- 每个输入向量ai都会和矩阵Wq相乘得到qi
+- 每个输入向量ai都会和矩阵Wk相乘得到ki
+- 每个输入向量ai都会和矩阵Wv相乘得到vi
+
+将输入向量ai拼接成矩阵，再乘以不同的权重矩阵，就可以得到Q，K，V
+
+![计算qkv矩阵](MachineLearning.assets/计算qkv矩阵.png)
+
+**计算相关性α**
+
+是qi和ki分别做点积
+
+- 将ki拼接成矩阵K
+- 将qi拼接成矩阵Q
+
+用KT*Q得到相关性矩阵A，再经过softmax对A进行normalization，得到A'
+
+> 对A中的每一列（对应一个qi计算的α）做softmax
+
+![计算QK矩阵](MachineLearning.assets/计算QK矩阵.png)
+
+![计算相关性矩阵](MachineLearning.assets/计算相关性矩阵.png)
+
+**计算输出**
+
+- 将vi拼接成矩阵V
+- 用A'和V相乘得到self-attention的输出矩阵O
+
+![计算矩阵B](MachineLearning.assets/计算矩阵B.png)
+
+**整个self-attention的计算流程**
+
+- 只有Wq，Wk，Wv三个权重矩阵是未知参数，需要通过数据训练找到
+- 其余的都是人为设定好的参数
+
+![整个计算过程](MachineLearning.assets/整个计算过程.png)
+
+## Multi-head Self-attention
+
+多头自注意力机制：Self-Attention的进阶版
+
+- Self-attention在**找寻相关性的时候就是用qi去找ki**
+
+- 但相关性并不一定只有一种形式，在不同的形式下会有不同的定义
+- **多种相关性体现到计算方式上就是有多个矩阵（qi，j）**
+  - **不同的（qi，j）负责代表不同的相关性**
+
+> head的个数也是一个hyperparameter
+
+计算方式
+
+- 将qi和不同的矩阵（Wq，j）相乘，得到不同的（qi，j），表示不同的相关性
+  - （qi，j）的j表示是第j个head
+  - （Wq，j）的j表示对应的（qi，j）
+    - **几种相关性就有几个head**
+- **有几个（qi，j），就对应用几个（ki，j）和（vi，j）**
+
+![Multi-head Self-attention](MachineLearning.assets/Multi-head Self-attention.png)
+
+后续的计算中，**只将属于相同相关性的矩阵进行运算**
+
+计算第一种相关性
+
+- （qi，1）分别和（ki，1），（kj，1）点积得到（α1，1，1），（α1，2，1）
+- （α1，1，1）和（α1，2，1）分别再和（vi，1），（vj，1）相乘得到（bi，1）
+
+同理得到第二种相关性（bi，2）
+
+![独立相关性计算](MachineLearning.assets/独立相关性计算.png)
+
+最后将（bi，1）和（bi，2）拼起来的矩阵再乘以一个矩阵Wo，就得到最终的output bi
+
+![多头自注意力计算](MachineLearning.assets/多头自注意力计算.png)
+
+## Positional Encoding
+
+**问题**
+
+- 整个过程中Self-attention layer少了一个重要的信息，即**位置信息**
+  - 输入向量位于整个sequence的哪个位置是未知的
+  - 进行矩阵运算的时候，对于不同的位置的输入，都是同等对待的
+- 没有说像RNN那样**后面的输入考虑了前面输入的信息**，也**没有考虑输入的距离远近**
+
+**解决方案**
+
+- 加入位置信息：为每个位置的输入都设定一个独立的位置向量ei
+  - ei是通过sin和cos函数形成一个公式生成的
+- 将位置向量ei加上到输入向量ai
+
+> 也有其他的生成方法，甚至可以当成一个可以学习的参数
+
+![PositionalEncoding](MachineLearning.assets/PositionalEncoding.png)
