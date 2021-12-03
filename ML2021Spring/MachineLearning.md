@@ -1667,8 +1667,38 @@ Decoder有两种
 
 ![NAT](MachineLearning.assets/NAT.png)
 
-## Encoder和Decoder的数据传输
+## Cross Attention
 
 **Encoder和Decoder之间的数据传输由Cross Attention负责完成**
 
+Cross Attention中
+
+- Encoder提供了2个输入
+  - Decoder从这里读取Encoder的输出
+
+- Decoder提供了一个输入
+
 ![crossattention](MachineLearning.assets/crossattention.png)
+
+**计算过程**
+
+将Decoder的输入处理得到q，将Encoder的输入处理得到k和v
+
+1. 每当Decoder生成一个结果q，就将q和Encoder输入的k计算Attention Score
+2. 再将Attention Score和Encoder输入的v得到V
+3. 将V输入到Fully Connected Feedforward NetWork中再处理
+4. 重复1，2，3直到Decoder输出END结束
+
+> 这里Decoder使用的是Encoder最后一层的输出，也可以和Encoder的中间其他层做出各式各样的连接
+
+![crossattention计算过程](MachineLearning.assets/crossattention计算过程.png)
+
+
+
+## 训练过程
+
+Decoder的输出是一个经过softmax处理后的长度为Vocabulary Size的输出向量
+
+> Vocabulary Size的分类问题
+
+![训练目标](MachineLearning.assets/训练目标.png)
