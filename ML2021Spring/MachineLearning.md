@@ -1544,14 +1544,14 @@ Transformer就是一个Sequence to sequence（**Seq2seq**）model
 
 - 由机器自己决定向量序列在输出中对应的标签数量
 
-> 输入和输出的长度没有绝对的关系
+Transformer的整个结构可以分为两部分
 
-一般的seq2seq model里面会分成两块
+- **编码器**：Encoder
+- **解码器**：Decoder
 
-- Encoder
-- Decoder
+![transformer模型结构](MachineLearning.assets/transformer模型结构.png)
 
-**seq2seq过程**
+**处理过程**
 
 1. 输入一个sequence
 2. 由Encoder负责处理这个sequence
@@ -1559,3 +1559,116 @@ Transformer就是一个Sequence to sequence（**Seq2seq**）model
 4. 由Decoder决定它要输出什么样的sequence
 
 ![seq2seq组成](MachineLearning.assets/seq2seq组成.png)
+
+## Encoder
+
+Encoder的作用就是**输入一个向量序列，输出另一个向量序列**
+
+- **Transformer中使用Multi-Head attention模型来作为Encoder**
+
+> 能实现这个功能的模型还有CNN和RNN等
+
+![encoder](MachineLearning.assets/encoder.png)
+
+在Transformer的**Encoder中会有很多个block**
+
+- 每一个block都是**输入一个向量序列，输出另一个向量序列**到下一个block
+
+**每一个block并不只是neural network中的一个layer，而是好几个layer**，每个block中都包含了Multi-Head Self-Attention和Fully Collection
+
+- 输入的向量序列先经过self-attention，在考虑整个sequence的信息后，输出一个向量序列
+- 然后将输出的这个向量序列输入到Fully Connected Feedforward NetWork中，得到处理后的向量
+
+Transformer中，**在Multi-Head Self-Attention和Fully Connected Feedforward NetWork上还额外加了residual connection和layer normalization**
+
+- residual connection：将输入向量加到输出向量上，即Add
+- layer normalization：将Add后的输出向量标准化
+  - 计算输入向量的mean跟standard deviation
+  - 把向量的每一个分量减去mean，再除以standard deviation就得到标准化的结果
+
+> 在最开始输入的时候，还会有Positional Encoding加上位置信息
+>
+> 整个操作就会重复block个数的次数
+>
+> 这是最原始的Transformer的encoder的network架构
+
+![block结构](MachineLearning.assets/block结构.png)
+
+![一个block操作](MachineLearning.assets/一个block操作.png)
+
+
+
+## Decoder
+
+Decoder有两种
+
+- **AT**：Auto regressive
+- **NAT**：Non-Auto regressive
+
+> AT应用范围更为广泛一些
+
+### Auto regressive
+
+**每一个输入都用One-Hot的Vector表示**
+
+- 并设定START和END两个special token，其中**START表示开始工作，END表示结束工作**
+- START和END也可以共用一个special token
+
+**处理过程**
+
+1. 在Encoder完成处理之后，就将其输出作为一个输入喂到Decoder中，同时输入一个special token：START，来表示开始工作
+2. Decoder结合这两个输入，**输出一个经过softmax处理后的长度为Vocabulary Size的输出向量**
+   1. Vocabulary Size是根据任务自己选择的
+   2. 要包含START和END这两个special token
+3. 该向量中每一个分量都会对应一个值，**值最大的分量就作为最终输出的结果**
+4. 然后将这个结果作为一个新的One-Hot的Vector，输入到Decoder中
+5. **Decoder会考虑之前的输入和这个新的输入**，再做处理得到输出
+6. 然后重复步骤4，5，直到Decoder输出的结果为END对应的special token
+   1. **每次都会考虑之前所有的输入和新的输入**
+   2. 最后的Vocabulary Size的输出向量中，END对应的值必须要最大
+
+> 因为Decoder会将前一步的输入作为下一步的输入，所以如果前一步输出错误，那么可能会造成error propagation
+>
+> 整个过程中Decoder也有考虑Encoder的输出信息
+
+![softmax处理](MachineLearning.assets/softmax处理.png)
+
+![Decoderoutput](MachineLearning.assets/Decoderoutput.png)
+
+![decoder结束](MachineLearning.assets/decoder结束.png)
+
+### Decoder结构
+
+相比较Encoder
+
+- 在遮住中间的Multi-head Self-attention，两者几乎相同
+
+- 区别只在Decoder的**第一个自注意力机制**使用了**Masked Multi-head Self-attention**
+
+![decoder结构](MachineLearning.assets/decoder结构.png)
+
+![encoder和decoder对比](MachineLearning.assets/encoder和decoder对比.png)
+
+### Masked Multi-head Self-attention
+
+在计算相关性的时候，**每次只能考虑自己左边的部分**
+
+- b1只看a1，b2只看a1和a2，b3只看a1，a2和a3，b4可以看到全部的ai
+
+因为在Decoder的处理过程中，每一次处理都只考虑前面所有的输入，此时右边的向量还有生成出来
+
+- 即**Masked Multi-Head attention的计算顺序和Decoder的串行计算顺序相对应的**
+
+![Maskedsa](MachineLearning.assets/Maskedsa.png)
+
+![maskeddemo](MachineLearning.assets/maskeddemo.png)
+
+## NAT
+
+![NAT](MachineLearning.assets/NAT.png)
+
+## Encoder和Decoder的数据传输
+
+**Encoder和Decoder之间的数据传输由Cross Attention负责完成**
+
+![crossattention](MachineLearning.assets/crossattention.png)
