@@ -41,13 +41,30 @@ $y = b + wx$
 
 Loss：`L(b,w)`
 
-Loss is a function of  parameters
+其中，y是输出，$\bar{y}$是监督数据，n是数据的维数
 
-- MAE（mean absolute error）：平均绝对误差 |$y-\bar{y}$|
-- MSE（mean square error）：均方误差 $(y-\bar{y})^2$
-- RMSE（Root Mean Squard Error）：均方根误差 $\sqrt{\frac{1}{N}\sum_{n=1}^{N}(f(x^n)-\bar y^n)^2}$
+- **平均绝对误差**MAE（Mean Absolute Error）： |$y^n-\bar{y^n}$|
+- **均方误差**MSE（Mean Square Error）： $\frac{1}{2}\sum\limits_n(y^n-\bar{y^n})^2$
+- **均方根误差**RMSE（Root Mean Squard Error）：$\sqrt{\frac{1}{n}\sum\limits_n(f(x^n)-\bar y^n)^2}$
+- **交叉熵误差**CEE（Cross Entropy Error）：$-\sum\limits_n\bar{y^n}logy^n$
+  - log以e为底
+  - 其中$\bar{y^n}$用one-hot表示，只有正确标签的索引才为1，其余均为0，所以只输出正确标签的对数
+
 
 > Define Loss  from Training Data
+>
+> 一般将输出y用softmax处理，监督数据$\bar{y}$用one-hot表示
+
+计算损失函数必须把所有的训练数据都作为对象，所有要把所有数据的LOSS加起来，然后再平均化得到平均损失函数
+$$
+LOSS = -\frac1K\sum\limits_K\sum\limits_n\bar{y^n}logy^n
+$$
+
+#### mini-batch
+
+用全部数量的训练数据计算LOSS开销太大
+
+- 用随机选择的小批量数据作为全体数据的近似值
 
 ### 最优化
 
@@ -57,13 +74,19 @@ $w^*,b^* = arg\underset{w,b}{min} L$
 
 > arg min：求得使Loss最小的参数w和b
 
+对于损失函数来说，Loss is a function of  parameters，所以对LOSS函数求导，来判断如何改变权重参数的值，能使得函数值发生何种变化
+
+- 如果导数为正，那么将权重参数值负方向改变，就可以减少LOSS函数值
+- 如果导数为负，那么将权重参数值正方向改变，就可以减少LOSS函数值
+- 如果导数为0时，无论怎么改变权重参数值，LOSS函数都不会变化，此时更新就会结束
+
 #### 梯度下降
 
 `Gradient Descent`
 
-**存在问题**
+- 使用梯度信息决定前进方向
 
-- 容易陷入局部最优解（local minima）而得不到全局最优解（global minima）
+- 梯度只能表示当前函数值减小最多的方向，而不是最小值的方法，所以容易陷入局部最优解（local minima）而得不到全局最优解（global minima）
 
 
 > 负梯度方向，LOSS下降最快
@@ -87,6 +110,8 @@ $w^*,b^* = arg\underset{w,b}{min} L$
 >
 > - negative：increase w,b
 > - positive：decrease w,b
+>
+> 学习率一般事先设定好，然后在学习中也会改变值，来确认学习是否正确进行了
 
 ### 超参数
 
@@ -860,7 +885,26 @@ Matrix Operation：矩阵计算**可以使用GPU加速**
 
 
 
+## 训练
 
+机器学习是数据驱动的方法，数据是机器学习的核心
+
+1. 从输入数据中提取特征
+   1. 特征指可以从输入数据中准确提取本质数据（重要数据）的转换器
+   2. 特征通常表现为向量的形式
+2. 再从这些特征中学习模式
+
+> 避免人为介入，尝试从收集的数据学习某种模式pattern
+>
+> 机器学习还需要人为设定特征，深度学习连特征都由机器学习得到
+
+### 数据集
+
+分为训练数据集和测试数据集，正确评估模型的**泛化能力**
+
+- x_train，x_test
+
+> 泛化：处理未被观察过的数据的能力
 
 # 反向传播BP算法
 
@@ -1047,7 +1091,7 @@ $$
 
 # 卷积神经网络
 
-`Convolutional Neural Network`：
+`Convolutional Neural Network`：CNN
 
 -  Network Architecture designed for **Image Classification**
 
@@ -1241,6 +1285,10 @@ pooling就是做subsampling，目的是减少运算量
 ## Flatten
 
 将新得到的feature map拉直（Flatter）成一维的参数向量，然后放到fully connected network里面进行训练，最后得到分类结果
+
+
+
+
 
 # 自注意力机制
 
@@ -1609,10 +1657,12 @@ Decoder有两种
 
 ### Auto regressive
 
-**每一个输入都用One-Hot的Vector表示**
+**每一个输入都用One-Hot Vector表示**
 
 - 并设定START和END两个special token，其中**START表示开始工作，END表示结束工作**
 - START和END也可以共用一个special token
+
+> One-Hot Vector：仅将正确解的标签设为1，其他都是0的向量，如[0,1,0,0,0,0]
 
 **处理过程**
 
@@ -1702,3 +1752,122 @@ Decoder的输出是一个经过softmax处理后的长度为Vocabulary Size的输
 > Vocabulary Size的分类问题
 
 ![训练目标](MachineLearning.assets/训练目标.png)
+
+
+
+
+
+# 循环神经网络
+
+`Recurrent Neural Network`：RNN
+
+**应用**
+
+- Slot Filling：槽填充
+
+> one-hot encoding
+>
+> - 将词转换为向量
+> - 对于没有在词典中的词，统一归类到`other`类别，用`other`的向量表示
+
+![slotfilling](MachineLearning.assets/slotfilling.png)
+
+ **问题**
+
+- 如果没有把这句话当做一个序列，用前向传播神经网络的话是**没有考虑到上下文的**
+- **前向传播神经网络中相同的input一定是相同的output**
+
+> 要么都是dest，要么都是departure
+
+![不考虑到上下文](MachineLearning.assets/不考虑到上下文.png)
+
+**需求**
+
+- 神经网络是有记忆（**memory**）的：考虑上下文
+  - 相同的input，不同的order，也会产生不同的output
+
+> 将地点和前面的动词离开，到达结合
+
+## RNN架构
+
+**memory**：存储上一层的输出
+
+> 下一个输出就会更新memory，所以只能记忆一个时间点的信息
+
+![RNN模型](MachineLearning.assets/RNN模型.png)
+
+当前输入会考虑上一层的输出，即memory会传递给下一个input vector
+
+![memory存储](MachineLearning.assets/memory存储.png)
+
+## RNN种类
+
+**Elman Network**
+
+- 考虑每一个hidden layer 的memory
+
+**Jordan Network**
+
+- 将整个输出当成memory考虑
+
+![简单RNN](MachineLearning.assets/简单RNN.png)
+
+### 双向RNN
+
+`Bidirectional RNN`
+
+- 同时从反向训练一个RNN，这样在考虑某一个input vector xt时，同时考虑正向的memory和反向的memory
+
+> 等于考虑了一整个序列的信息
+
+
+
+## LSTM
+
+`Long Short-term Memory`
+
+- **其实还是一个Short-term的memory，只是比较Long**
+
+> 普通的RNN只能记忆一个时间点的信息，即short-term，LSTM有forget gate，所以会long一点
+
+### LSTM架构
+
+**LSTM的memory cell有4个input，1个output**
+
+有三个Gate，Gate的打开和关闭由NN自己学习得出
+
+- input gate：决定是否要存储输入的memory
+  - 输入就是某个neuron的输出
+- output gate：决定是否要输出这个memory
+  - 其它neuron来读取这个memory
+- forget gate：决定是否要遗忘存储的memory
+  - **forget gate打开代表记住，关闭代表遗忘**
+
+> 4个input分别是要输入的memory和操控三个gate的信号
+
+![lstm架构](MachineLearning.assets/lstm架构.png)
+
+### Memory分析
+
+使用sigmoid函数作为激活函数，因为可以将值映射到[0,1]，从而反应控制门的程度
+
+- memory需要设定初始值
+
+- 使用乘积作为结果输出到cell中（0表示关闭，1表示打开）
+
+![lstmgate的激活函数](MachineLearning.assets/lstmgate的激活函数.png)
+
+### LSTM和NN
+
+**LSTM就可以相当于普通的NN中的neuron**
+
+- 将输入的向量xt进过线性变换变成对应LSTM的4个输入的4维向量z
+- 然后得到一个输出送入下一个LSTM
+
+> 普通的NN中的neuron是一个输入，一个输出
+>
+> 所以如果LSTM和neuron的数量相同时，LSTM的参数就会是普通neuron的4倍
+
+![LSTM参数架构](MachineLearning.assets/LSTM参数架构.png)
+
+![LSTM参数架构2](MachineLearning.assets/LSTM参数架构2.png)
