@@ -914,16 +914,6 @@ Matrix Operation：矩阵计算**可以使用GPU加速**
   - 高维度的θ
 - 需要有效的方法来计算Gradient Descent从而得到θ
 
-> **梯度消失问题**
->
-> - 在**误差梯度**后项传递的过程中，后层梯度以乘性方式叠加到前层，由于Sigmoid函数的饱和特性，后层梯度本来就小，误差梯度传到前层时几乎为0，因此无法对前层进行有效的学习
->
->
-> **解决方案**
->
-> - 无监督预训练（对权值进行初始化） + 有监督训练微调
-> - ReLU激活函数能够有效的抑制梯度消失问题（不再需要预训练和微调）
-
 ## Chain Rule
 
 - 链式求导法则
@@ -1845,6 +1835,12 @@ Decoder的输出是一个经过softmax处理后的长度为Vocabulary Size的输
 
 > 4个input分别是要输入的memory和操控三个gate的信号
 
+从forget gate可以看出， LSTM的memory采用的是累加策略，这就意味着，只要产生了影响，这影响始终存在，除非forget gate把memory的值遗忘掉
+
+- 所以LSTM可以解决梯度消失问题（gradient vanishing）
+
+> 最早的LSTM是没有forget gate的
+
 ![lstm架构](MachineLearning.assets/lstm架构.png)
 
 ### Memory分析
@@ -1868,6 +1864,43 @@ Decoder的输出是一个经过softmax处理后的长度为Vocabulary Size的输
 >
 > 所以如果LSTM和neuron的数量相同时，LSTM的参数就会是普通neuron的4倍
 
+C是memory cell组成的vector
+
 ![LSTM参数架构](MachineLearning.assets/LSTM参数架构.png)
 
 ![LSTM参数架构2](MachineLearning.assets/LSTM参数架构2.png)
+
+## RNN梯度
+
+RNN会出现**悬崖**（梯度消失或爆炸）问题
+
+- 梯度消失（gradient vanishing）
+
+- 梯度爆炸（gradient explode）
+
+![训练RNN](MachineLearning.assets/训练RNN.png)
+
+可能变一点就飞出去了![RNN悬崖问题](MachineLearning.assets/RNN悬崖问题.png)
+
+### 梯度消失/爆炸
+
+激活函数
+
+- sigmoid函数不是造成不平整的原因
+- ReLU在RNN上表现并不如sigmoid，所以activation function并不是这里的关键点
+
+**原因**
+
+- RNN会把同样的weight在不同时间反复使用
+
+  - 要么不起作用就不起作用
+
+  - 要么起作用就会一直起作用
+
+> LSTM可以解决梯度消失问题（gradient vanishing） ，但不能解决梯度爆炸问题（gradient explode），所以使用LSTM可以把学习率设置的小一点
+
+![RNN梯度消失原因](MachineLearning.assets/RNN梯度消失原因.png)
+
+## GRU
+
+`Gated Recurrent Unit`
