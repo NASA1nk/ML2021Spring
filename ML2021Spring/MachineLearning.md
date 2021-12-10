@@ -1282,7 +1282,7 @@ pooling就是做subsampling，目的是减少运算量
 
 # 自注意力机制
 
-Self-Attention
+`Self-Attention`
 
 **问题**
 
@@ -1308,7 +1308,7 @@ Self-Attention
 
 ## Sequence Labeling
 
-**序列标注**：每个输入的向量都在输出中对应一个标签
+**序列标注**：每个输入的向量都在输出中对应**一个标签**
 
 **问题**
 
@@ -1406,7 +1406,7 @@ Query-Key-Value
    1. **k2被称为key**
 3. 然后**将q1和k2做点积运算**得到（α1，2）
    1. **（α1，2）就被称为attention score**，表示a1和a2之间的相关性
-4. 然后计算其他剩余的向量a3，a4和a1的关联性
+4. 然后计算其他剩余的向量a3，a4和a1的相关性
 
 ![attentionscore](MachineLearning.assets/attentionscore.png)
 
