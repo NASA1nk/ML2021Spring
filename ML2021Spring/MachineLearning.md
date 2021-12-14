@@ -7,9 +7,9 @@
 `Machine Learning` ≈ Looking For Function
 
 - **回归Regression**
-  - The function outputs a scalar.
+  - The function outputs a scalar
 - **分类Classification**
-  - Given options (classes)，the function outputs the correct one.
+  - Given options (classes)，the function outputs the correct one
 - **结构化Structured Learning**
   - create something with  structure (image, document)
 
