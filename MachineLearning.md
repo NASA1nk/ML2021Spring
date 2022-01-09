@@ -506,9 +506,7 @@ y = x.mean()
 
 ## Device
 
-Default
-
-- tensors & modules will be computed with **CPU**
+Default：tensors & modules will be computed with **CPU**
 
 `model = MyModel().to(device)`
 
@@ -519,6 +517,11 @@ Default
 
 1. Check if your computer has NVIDIA GPU：`torch.cuda.is_available()`
 2. Multiple GPUs：specify 'cuda:0', 'cuda:1'...
+
+`torch.device`代表将`torch.Tensor`分配到的设备的对象，有cpu和cuda两种
+
+- cuda就是gpu
+- 为什么不直接用gpu与cpu对应，是因为gpu的编程接口采用的是cuda
 
 > Parallel computing：拆分矩阵运行
 
