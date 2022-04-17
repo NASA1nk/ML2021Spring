@@ -464,10 +464,10 @@ A Python package that provides two high-level features
 
 ### Operator
 
-- Squeeze：remove the specified dimension with length = 1（降维）
-- Unsqueeze：expand a new dimension（升维）
-- Transpose：transpose two specified dimensions（转置）
-- Cat：concatenate multiple tensors（拼接）
+- `Squeeze`：remove the specified dimension with length = 1（降维）
+- `Unsqueeze`：expand a new dimension（升维）
+- `Transpose`：transpose two specified dimensions（转置）
+- `Cat`：concatenate multiple tensors（拼接）
 
 ```python
 x = torch.zeros([1, 2, 3])
