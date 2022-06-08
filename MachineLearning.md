@@ -409,373 +409,6 @@ $$
 
 > 永远不要用测试集参与训练
 
-# PyTorch
-
-An open source **machine learning framework**
-
-A Python package that provides two high-level features
-
-- **Tensor** computation（like NumPy）with strong GPU acceleration
-- Deep neural networks built on a tape-based autograd system
-
-> Facebook AI 
-
-![Overview of the DNN Training Procedure](MachineLearning.assets/Overview of the DNN Training Procedure.png)
-
-## Tensor
-
-**张量**
-
-- torch中的一种数据结构：High-dimensional matrix (array)，即各种维度的数组
-
-
-### Data Type
-
-| Data type               | dtype       | tensor            |
-| ----------------------- | ----------- | ----------------- |
-| 32-bit floating point   | torch.float | torch.FloatTensor |
-| 64-bit integer (signed) | torch.long  | torch.LongTensor  |
-
-### shape
-
-- **1-D tensor**
-  - （3，）
-- **2-D tensor**
-  - （dim0，dim1）
-- **3-D tensor**
-  - （dim0，dim1，dim2）
-
-> dimension：dim in PyTorch == axis in NumPy
->
-> dim0：三维的高度
-
-`x.shape`：返回`torch.Size`
-
-### Constructor
-
-- **From list / NumPy array** 
-  - `x = torch.tensor([[1, -1], [-1, 1]])` 
-  - `x = torch.from_numpy(np.array([[1, -1], [-1, 1]]))`
-- **Specify shape**
-  - Zero tensor 
-    - `x = torch.zeros([2, 2])` 
-  - Unit tensor 
-    - `x = torch.ones([1, 2, 5])`
-
-### Operator
-
-- `Squeeze`：remove the specified dimension with length = 1（降维）
-- `Unsqueeze`：expand a new dimension（升维）
-- `Transpose`：transpose two specified dimensions（转置）
-- `Cat`：concatenate multiple tensors（拼接）
-
-```python
-x = torch.zeros([1, 2, 3])
-# dim0
-x = x.squeeze(0)
-# torch.Size([2, 3])
-x.shape
-
-x = torch.zeros([2, 3])
-# dim1
-x = x.unsqueeze(1)
-# torch.Size([2, 1, 3])
-x.shape
-
-x = torch.zeros([2, 3])
-x = x.transpose(0, 1)
-# torch.Size([3, 2])
-x.shape
-
-
-x = torch.zeros([2, 1, 3])
-y = torch.zeros([2, 3, 3])
-z = torch.zeros([2, 2, 3])
-# dim1
-w = torch.cat([x, y, z], dim=1)
-# torch.Size([2, 6, 3])
-w.shape
-
-
-z = x + y
-z = x - y
-y = x.pow(2)
-y = x.sum()
-y = x.mean()
-```
-
-## Device
-
-Default：tensors & modules will be computed with **CPU**
-
-`model = MyModel().to(device)`
-
-- CPU：`x = x.to('cpu')`
-- GPU：`x = x.to('cuda')`
-
- **GPU**
-
-1. Check if your computer has NVIDIA GPU：`torch.cuda.is_available()`
-2. Multiple GPUs：specify 'cuda:0', 'cuda:1'...
-
-`torch.device`代表将`torch.Tensor`分配到的设备的对象，有cpu和cuda两种
-
-- cuda就是gpu
-- 为什么不直接用gpu与cpu对应，是因为gpu的编程接口采用的是cuda
-
-> Parallel computing：拆分矩阵运行
-
-## Gradient
-
-计算矩阵微分
-
-`backward()`
-
-1. 矩阵
-   $$
-   x=
-   \left[
-   \begin{matrix}
-   1&0\\-1&1
-   \end{matrix}
-   \right]
-   $$
-
-2. 矩阵
-   $$
-   z=\sum_i\sum_j x_{i,j}^2
-   $$
-
-3. 计算
-   $$
-   \frac{\partial z}{\partial x_{i,j}}=2x_{i,j}
-   $$
-
-4. 结果
-   $$
-   \frac{\partial z}{\partial x}=
-   \left[
-   \begin{matrix}
-   2&0\\-2&2
-   \end{matrix}
-   \right]
-   $$
-
-```python
-x = torch.tensor([[1., 0.], [-1., 1.]], requires_grad=True)
-z = x.pow(2).sum()
-# 计算微分
-z.backward()
-# 查看 tensor([[ 2., 0.],[-2., 2.]])
-x.grad
-```
-
-## Data
-
-**DataSet**
-
-```python
-from torch.utils.data import Dataset
-
-class MyDataset(Dataset):
-    # Read data & preprocess 读数据，预处理
-    def __init__(self, file):
-      self.data = ...
-    # Returns one sample at a time
-    def __getitem__(self, index):
-      return self.data[index]
-    # Returns the size of the dataset
-    def __len__(self):
-      return len(self.data)
-```
-
-**DataLoader**
-
-shuffle
-
-- Training：True
-- Testing：False
-
-```python
-from torch.utils.data import DataLoader
-
-dataset = MyDataset(file)
-tr_set = DataLoader(dataset, batch_size, shuffle=True)
-```
-
-![PyTorchData](MachineLearning.assets/PyTorchData.png)
-
-
-
-## Neural  Network
-
-`torch.nn`
-
-### Linear Layer
-
-`nn.Linear(in_features, out_features)`
-
-- in_features
-- out_features
-
-> in/out_features可以是任意维
->
-> *表示任意，但必须要满足矩阵乘法
-
-![PyTorchfeatures](MachineLearning.assets/PyTorchfeatures.png)
-
-![PyTorchlinear](MachineLearning.assets/PyTorchlinear.png)
-
-```python
-import torch.nn as nn
-
-layer = torch.nn.Linear(32, 64)
-# W:torch.Size([64, 32])
-layer.weight.shape
-# b:torch.Size([64])
-layer.bias.shape
-```
-
-
-
-### Activation Function
-
-- Sigmoid Activation 
-  - `nn.Sigmoid()`
-- ReLU Activation 
-  - `nn.ReLU()`
-
-
-
-### Loss Function
-
-`criterion = nn.MSELoss()`
-
-- Mean Squared Error (for linear regression)
-  - `nn.MSELoss()`
-- Cross Entropy (for classification)
-  - `nn.CrossEntropyLoss()`
-
-
-
-### Build
-
-- `nn.Sequential()`
-- `forward()`
-
-```python
-import torch.nn as nn
-
-class MyModel(nn.Module):
-    # Initialize your model & define layers
-    def __init__(self):
-    	super(MyModel, self).__init__()
-		self.net = nn.Sequential(
- 			nn.Linear(10, 32),
- 			nn.Sigmoid(),
- 			nn.Linear(32, 1)
- 		)
-    # Compute output of your NN
-    def forward(self, x):
- 		return self.net(x)
-```
-
-
-
-### Optimizer
-
-`torch.optim`
-
-Stochastic Gradient Descent (SGD)
-
-```python
-# params: model.parameters()
-# lr: learning rate η
-optimizer = torch.optim.SGD(params, lr, momentum = 0)
-```
-
-
-
-## Training
-
-**准备**
-
-1. Read data via MyDataset
-2. Put dataset into Dataloader
-3. Contruct model and move to device (cpu/cuda)
-4. Set loss function
-5. Set optimizer
-
-**训练**
-
-```python
-for epoch in range(n_epochs):
-    # set model to train mode
-    model.train()
-    for x, y in tr_set:
-        # set gradient to zero
-        optimizer.zero_grad()
-        # move data to device (cpu/cuda)
-        x, y = x.to(device), y.to(device)
-        # forward pass (compute output)
-        pred = model(x)
-        # compute loss
-        loss = criterion(pred, y)
-        # compute gradient (backpropagation)
-        loss.backward()
-        # update model with optimizer
-        optimizer.step()
-```
-
-**Evaluation**
-
-Validation
-
-```python
-# set model to evaluation mode
-model.eval()
-total_loss = 0
-
-for x, y in dv_set:
-    x, y = x.to(device), y.to(device)
-    # disable gradient calculation
-    with torch.no_grad():
-        # forward pass (compute output)
-        pred = model(x)
-        # compute loss
-        loss = criterion(pred, y)
-        # accumulate loss
-        total_loss += loss.cpu().item() * len(x)
-
-# compute averaged loss       
-avg_loss = total_loss / len(dv_set.dataset)
-```
-
-Testing
-
-```python
-# set model to evaluation mode
-model.eval()
-preds = []
-# test dataset
-for x in tt_set:
-    x = x.to(device)
-    with torch.no_grad():
-        pred = model(x)
-        # collect predictio
-        preds.append(pred.cpu())
-```
-
-
-
-## Save/Load
-
-- **Save**
-  - `torch.save(model.state_dict(), path)` 
-- **Load** 
-  - `ckpt = torch.load(path)` 
-  - `model.load_state_dict(ckpt)`
-
 # 深度学习
 
 `Deep Learning`
@@ -1907,3 +1540,451 @@ RNN会出现**悬崖**（梯度消失或爆炸）问题
 ## GRU
 
 `Gated Recurrent Unit`
+
+# PyTorch
+
+An open source **machine learning framework**
+
+A Python package that provides two high-level features
+
+- **Tensor** computation（like NumPy）with strong GPU acceleration
+- Deep neural networks built on a tape-based autograd system
+
+> Facebook AI 
+
+![Overview of the DNN Training Procedure](MachineLearning.assets/Overview of the DNN Training Procedure.png)
+
+## Tensor
+
+**张量**：torch中的一种数据结构
+
+> High-dimensional matrix (array)，即各种维度的数组
+
+
+### Data Type
+
+| Data type               | dtype       | tensor            |
+| ----------------------- | ----------- | ----------------- |
+| 32-bit floating point   | torch.float | torch.FloatTensor |
+| 64-bit integer (signed) | torch.long  | torch.LongTensor  |
+
+### shape
+
+- **1-D tensor**
+  - （3，）
+- **2-D tensor**
+  - （dim0，dim1）
+- **3-D tensor**
+  - （dim0，dim1，dim2）
+
+> dimension：dim in PyTorch == axis in NumPy
+>
+> dim0：三维的高度
+
+`x.shape`：返回`torch.Size`
+
+### Constructor
+
+- **From list / NumPy array** 
+  - `x = torch.tensor([[1, -1], [-1, 1]])` 
+  - `x = torch.from_numpy(np.array([[1, -1], [-1, 1]]))`
+- **Specify shape**
+  - Zero tensor 
+    - `x = torch.zeros([2, 2])` 
+  - Unit tensor 
+    - `x = torch.ones([1, 2, 5])`
+
+### Operator
+
+- `squeeze`：remove the specified dimension with length = 1（降维）
+- `unsqueeze`：expand a new dimension（升维）
+- `transpose`：transpose two specified dimensions（转置）
+- `cat`：concatenate multiple tensors（拼接）
+
+```python
+x = torch.zeros([1, 2, 3])
+# dim0
+x = x.squeeze(0)
+# torch.Size([2, 3])
+x.shape
+
+x = torch.zeros([2, 3])
+# dim1
+x = x.unsqueeze(1)
+# torch.Size([2, 1, 3])
+x.shape
+
+x = torch.zeros([2, 3])
+x = x.transpose(0, 1)
+# torch.Size([3, 2])
+x.shape
+
+
+x = torch.zeros([2, 1, 3])
+y = torch.zeros([2, 3, 3])
+z = torch.zeros([2, 2, 3])
+# dim1
+w = torch.cat([x, y, z], dim=1)
+# torch.Size([2, 6, 3])
+w.shape
+
+
+z = x + y
+z = x - y
+y = x.pow(2)
+y = x.sum()
+y = x.mean()
+```
+
+## Device
+
+> Default：tensors & modules will be computed with **CPU**
+>
+
+`model = MyModel().to(device)`
+
+- CPU：`x = x.to('cpu')`
+- GPU：`x = x.to('cuda')`
+
+ **GPU**
+
+1. Check if your computer has NVIDIA GPU：`torch.cuda.is_available()`
+2. Multiple GPUs：specify 'cuda:0', 'cuda:1'...
+
+`torch.device`代表将`torch.Tensor`分配到的设备的对象，有cpu和cuda两种
+
+- cuda就是gpu
+
+> 为什么不直接用gpu与cpu对应，是因为gpu的编程接口采用的是cuda
+>
+> Parallel computing：拆分矩阵运行
+
+```python
+# 返回当前设备索引
+torch.cuda.current_device()
+
+# 返回GPU的数量
+torch.cuda.device_count()
+
+# 返回gpu名字，设备索引默认从0开始
+torch.cuda.get_device_name(0)
+
+# 检测cuda是否可用
+torch.cuda.is_available()
+
+# 指定GPU（从0开始）
+torch.cuda.set_device(1)
+
+# 创建设备
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+
+
+
+## Gradient
+
+计算矩阵微分
+
+`backward()`
+
+1. 矩阵
+   $$
+   x=
+   \left[
+   \begin{matrix}
+   1&0\\-1&1
+   \end{matrix}
+   \right]
+   $$
+
+2. 矩阵
+   $$
+   z=\sum_i\sum_j x_{i,j}^2
+   $$
+
+3. 计算
+   $$
+   \frac{\partial z}{\partial x_{i,j}}=2x_{i,j}
+   $$
+
+4. 结果
+   $$
+   \frac{\partial z}{\partial x}=
+   \left[
+   \begin{matrix}
+   2&0\\-2&2
+   \end{matrix}
+   \right]
+   $$
+
+```python
+x = torch.tensor([[1., 0.], [-1., 1.]], requires_grad=True)
+z = x.pow(2).sum()
+# 计算微分
+z.backward()
+# 查看 tensor([[ 2., 0.],[-2., 2.]])
+x.grad
+```
+
+## Data
+
+**DataSet**
+
+```python
+from torch.utils.data import Dataset
+
+class MyDataset(Dataset):
+    # Read data & preprocess 读数据，预处理
+    def __init__(self, file):
+      self.data = ...
+    # Returns one sample at a time
+    def __getitem__(self, index):
+      return self.data[index]
+    # Returns the size of the dataset
+    def __len__(self):
+      return len(self.data)
+```
+
+**DataLoader**
+
+shuffle
+
+- Training：True
+- Testing：False
+
+```python
+from torch.utils.data import DataLoader
+
+dataset = MyDataset(file)
+tr_set = DataLoader(dataset, batch_size, shuffle=True)
+```
+
+![PyTorchData](MachineLearning.assets/PyTorchData.png)
+
+
+
+## Neural  Network
+
+`torch.nn`
+
+### Linear Layer
+
+`nn.Linear(in_features, out_features)`
+
+- in_features
+- out_features
+
+> in/out_features可以是任意维
+>
+> *表示任意，但必须要满足矩阵乘法
+
+![PyTorchfeatures](MachineLearning.assets/PyTorchfeatures.png)
+
+![PyTorchlinear](MachineLearning.assets/PyTorchlinear.png)
+
+```python
+import torch.nn as nn
+
+layer = torch.nn.Linear(32, 64)
+# W:torch.Size([64, 32])
+layer.weight.shape
+# b:torch.Size([64])
+layer.bias.shape
+```
+
+
+
+### Activation Function
+
+- Sigmoid Activation 
+  - `nn.Sigmoid()`
+- ReLU Activation 
+  - `nn.ReLU()`
+
+
+
+### Loss Function
+
+`criterion = nn.MSELoss()`
+
+- Mean Squared Error (for linear regression)
+  - `nn.MSELoss()`
+- Cross Entropy (for classification)
+  - `nn.CrossEntropyLoss()`
+
+
+
+### Build
+
+- `nn.Sequential()`
+- `forward()`
+
+```python
+import torch.nn as nn
+
+class MyModel(nn.Module):
+    # Initialize your model & define layers
+    def __init__(self):
+    	super(MyModel, self).__init__()
+		self.net = nn.Sequential(
+ 			nn.Linear(10, 32),
+ 			nn.Sigmoid(),
+ 			nn.Linear(32, 1)
+ 		)
+    # Compute output of your NN
+    def forward(self, x):
+ 		return self.net(x)
+```
+
+
+
+### Optimizer
+
+`torch.optim`
+
+Stochastic Gradient Descent (SGD)
+
+```python
+# params: model.parameters()
+# lr: learning rate η
+optimizer = torch.optim.SGD(params, lr, momentum = 0)
+```
+
+
+
+## Training
+
+**准备**
+
+1. Read data via MyDataset
+2. Put dataset into Dataloader
+3. Contruct model and move to device (cpu/cuda)
+4. Set loss function
+5. Set optimizer
+
+**训练**
+
+```python
+for epoch in range(n_epochs):
+    # set model to train mode
+    model.train()
+    for x, y in tr_set:
+        # set gradient to zero
+        optimizer.zero_grad()
+        # move data to device (cpu/cuda)
+        x, y = x.to(device), y.to(device)
+        # forward pass (compute output)
+        pred = model(x)
+        # compute loss
+        loss = criterion(pred, y)
+        # compute gradient (backpropagation)
+        loss.backward()
+        # update model with optimizer
+        optimizer.step()
+```
+
+**Evaluation**
+
+Validation
+
+```python
+# set model to evaluation mode
+model.eval()
+total_loss = 0
+
+for x, y in dv_set:
+    x, y = x.to(device), y.to(device)
+    # disable gradient calculation
+    with torch.no_grad():
+        # forward pass (compute output)
+        pred = model(x)
+        # compute loss
+        loss = criterion(pred, y)
+        # accumulate loss
+        total_loss += loss.cpu().item() * len(x)
+
+# compute averaged loss       
+avg_loss = total_loss / len(dv_set.dataset)
+```
+
+Testing
+
+```python
+# set model to evaluation mode
+model.eval()
+preds = []
+# test dataset
+for x in tt_set:
+    x = x.to(device)
+    with torch.no_grad():
+        pred = model(x)
+        # collect predictio
+        preds.append(pred.cpu())
+```
+
+## Save/Load
+
+- **Save**
+  - `torch.save(model.state_dict(), path)` 
+- **Load** 
+  - `ckpt = torch.load(path)` 
+  - `model.load_state_dict(ckpt)`
+
+# 实验常用命令
+
+## nvidia-smi
+
+显示GPU当前的状态
+
+> 是一个跨平台工具，支持所有标准的NVIDIA驱动程序支持的Linux和WindowsServer 2008 R2 开始的64位系统，这个工具是N卡驱动附带的，只要装好驱动，就会有这个命令
+
+```bash
+(base) yinke@gpuserver:~/TimeSeries$ nvidia-smi
+Wed Jun  8 22:04:30 2022       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 460.84       Driver Version: 460.84       CUDA Version: 11.2     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Tesla V100-PCIE...  Off  | 00000000:18:00.0 Off |                    0 |
+| N/A   68C    P0   240W / 250W |  32003MiB / 32510MiB |    100%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla V100-PCIE...  Off  | 00000000:3B:00.0 Off |                    0 |
+| N/A   49C    P0   185W / 250W |   1891MiB / 32510MiB |     87%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|    0   N/A  N/A      3837      C   python                          31999MiB |
+|    1   N/A  N/A     15305      C   python                           1887MiB |
++-----------------------------------------------------------------------------+
+```
+
+### 参数
+
+- **GPU：本机中的GPU编号（有多块显卡的时候，从0开始编号）**
+- Fan：风扇转速（0%-100%），N/A表示没有风扇
+- **Name：GPU类型，这里是Tesla V100**
+- Temp：GPU的温度（GPU温度过高会导致GPU的频率下降）
+- Perf：GPU的性能状态，从P0（最大性能）到P12（最小性能）这里是P0
+- Persistence-M：持续模式的状态，持续模式虽然耗能大，但是在新的GPU应用启动时花费的时间更少，这里是off
+- Pwr:Usager/Cap：能耗，Usage表示用了多少，Cap表示总共多少
+- Bus-Id：GPU总线相关
+- Disp.A(Display Active)：表示GPU的显示是否初始化
+- **Memory-Usage：显存使用率**
+- **Volatile GPU-Util：GPU使用率**
+- Uncorr. ECC：关于ECC，是否开启错误检查和纠正技术（0：disabled，1：enabled）
+- Compute M：计算模式（0：DEFAULT，1：EXCLUSIVE_PROCESS，2：PROHIBITED）
+- **Processes：显示每个进程占用的显存使用率、进程号、占用的哪个GPU**
+
+### 刷新
+
+- 隔几秒刷新一下显存状态：`nvidia-smi -l 秒数`
+- 将监控结果写入文件，并且指定写入文件的监控字段：`nvidia-smi -l 2 --format=csv --filename=report.csv --query-gpu=timestamp,name,index,utilization.gpu,memory.total,memory.used,power.draw`
